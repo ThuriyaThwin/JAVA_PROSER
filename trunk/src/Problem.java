@@ -1,4 +1,4 @@
-/* this is a test mark */
+/* xxx this is a test mark */
 import java.io.*;
 /**
  * This class represents the problem 
@@ -412,4 +412,3 @@ public class Problem implements Serializable {
      }
 
 }
- // comment

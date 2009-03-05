@@ -21,7 +21,8 @@ public class Flows {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		run_queens(); 
+		//run_queens("DBAAgent");
+		run_queens("DSA_A_Agent");
 	    //make_samples();
 		//run_tests();
 		//run_example();
@@ -259,7 +260,7 @@ public class Flows {
 	*/
 	
 	
-	public static void run_queens() {
+	public static void run_queens(String AgentAlgorith) {
 		//Problem problem = new Problem(15,10, 0.5, 0.5);
 		// problem.save2File("input/problem.data1");
 		
@@ -267,7 +268,7 @@ public class Flows {
 		long start = System.currentTimeMillis();
 
 		Problem problem = new Problem(10);
-		AgentSolver solver = new AgentSolver(problem, "DBAAgent", 2000);
+		AgentSolver solver = new AgentSolver(problem, AgentAlgorith, 2000);
 		solver.solve();
 		
         // TODO - need to check if there is a solution 

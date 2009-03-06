@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.TreeMap;
 
 import edu.uci.ics.jung.graph.Graph;
@@ -27,10 +28,15 @@ public abstract class AbstractAgent implements Runnable{
 	HashMap<Integer,Integer> neighbor_map; // map index to id
 	HashMap<Integer,Integer> neighbor_id_map; // map id to index
 	
-    /**
-     * the graph will be used for display
-     */
-    Graph<AbstractAgent,Number> graph;
+	// Variables for AnyTime implementation 
+	public final static int NULL = -1;
+	int bfs_parent_id;
+	HashSet<Integer> bfs_children;
+	int bfs_height;
+	int bfs_distance;
+	int best = NULL;
+	int best_index = NULL;
+	int current_step = 0;
 
 	public AbstractAgent(int id, Problem problem, int max_cycles, AbstractAgent agents_table[]) {
 		d = problem.getD();
@@ -63,13 +69,9 @@ public abstract class AbstractAgent implements Runnable{
 		agent_view = new int[no_of_neighbors+1];
 		value = (int) (Math.random() * d);
 		cycle_count = 0;
-		
-		setup_graph();
+
 	}
 	
-	private void setup_graph() {
-		
-	}
 	
 	public int[] get_neighbors() {
 		Object [] neighbors = neighbor_id_map.keySet().toArray();
@@ -88,6 +90,29 @@ public abstract class AbstractAgent implements Runnable{
 		my_str = "id:" + id + "\n" + "val:" +  value;
 		
 		return my_str;
+	}
+	
+	public int get_id() {
+		return id;
+	}
+	
+	public void set_bfs_parent(int parent_id) {
+		bfs_parent_id = parent_id;
+	}
+	
+	public void add_bfs_child(int child_id) {
+         if (bfs_children == null)
+        	 bfs_children = new HashSet<Integer>();
+         
+         bfs_children.add(child_id);
+	}
+	
+	public void set_bfs_distance(int dist) {
+		bfs_distance = dist;
+	}
+	
+	public void set_bfs_height (int height) {
+		bfs_height = height;
 	}
 
 }

@@ -4,6 +4,8 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
 
+import javax.swing.JFrame;
+
 
 
 /************************************************************************************
@@ -22,13 +24,36 @@ public class Flows {
 	 */
 	public static void main(String[] args) {
 		//run_queens("DBAAgent", 4, 20000);
-		run_queens("DSA_A_Agent", 4, 20000);
+		//run_queens("DSA_A_Agent", 4, 20000);
 		//run_queens("DSA_D_Agent", 4, 20000);
+		run_gui_test("DBAAgent", 4, 20000);
 	    //make_samples();
 		//run_tests();
 		//run_example();
 	}
 	
+	
+    /**
+     * a driver for this demo
+     */
+    public static void run_gui_test(String AgentAlgorith, int queens_count, int cycle_count) {
+        JFrame f = new JFrame();
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+		Problem problem = new Problem(queens_count);
+		AgentSolver solver = new AgentSolver(problem, AgentAlgorith, cycle_count);
+		solver.solve();
+		
+        	
+        f.getContentPane().add(solver.get_panel());
+        f.pack();
+        f.setVisible(true);
+        
+
+        // TODO - need to check if there is a solution 
+	    solver.printV(System.out);
+
+    }
    // "Play" with this to run with diffrent p1/p2 values
 	
    private static double p2_min = 0.1;

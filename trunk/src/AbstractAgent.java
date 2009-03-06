@@ -2,6 +2,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeMap;
 
+import edu.uci.ics.jung.graph.Graph;
+
 
 public abstract class AbstractAgent implements Runnable{
 	protected int id; // the id of current agent
@@ -25,7 +27,10 @@ public abstract class AbstractAgent implements Runnable{
 	HashMap<Integer,Integer> neighbor_map; // map index to id
 	HashMap<Integer,Integer> neighbor_id_map; // map id to index
 	
-	
+    /**
+     * the graph will be used for display
+     */
+    Graph<AbstractAgent,Number> graph;
 
 	public AbstractAgent(int id, Problem problem, int max_cycles, AbstractAgent agents_table[]) {
 		d = problem.getD();
@@ -58,6 +63,31 @@ public abstract class AbstractAgent implements Runnable{
 		agent_view = new int[no_of_neighbors+1];
 		value = (int) (Math.random() * d);
 		cycle_count = 0;
+		
+		setup_graph();
+	}
+	
+	private void setup_graph() {
+		
+	}
+	
+	public int[] get_neighbors() {
+		Object [] neighbors = neighbor_id_map.keySet().toArray();
+		int[] result = new int[neighbors.length]; 
+		
+		for (int i = 0; i < neighbors.length; i++)
+			result[i] = (Integer) neighbors[i];
+		
+		return result;
+		
+	}
+	
+	public String toString()
+	{
+		String my_str;
+		my_str = "id:" + id + "\n" + "val:" +  value;
+		
+		return my_str;
 	}
 
 }

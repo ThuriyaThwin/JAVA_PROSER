@@ -16,7 +16,9 @@ public class AgentSolver {
     protected int v[]; // the ordered array with all solution
 	protected int n;  // these can be taken from probelem but put here to simplify code
 	protected int d;
-	protected AbstractAgent agents[];
+	
+	// TODO - shouldn't be public
+	public AbstractAgent agents[];
 
 	/**
 	 * Init variables common to all implementations

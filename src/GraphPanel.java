@@ -72,7 +72,7 @@ import edu.uci.ics.jung.visualization.renderers.VertexLabelAsShapeRenderer;
  * @author Tom Nelson 
  * 
  */
-public class GuiTest extends JApplet {
+public class GraphPanel extends JPanel {
 
     /**
      * the graph
@@ -113,35 +113,15 @@ public class GuiTest extends JApplet {
      * demo the zoom features.
      * 
      */
-    public GuiTest() {
+    public GraphPanel(	Graph<AbstractAgent,Number> graph  ) {
         
-
-		Problem problem = new Problem(5);
-		AgentSolver solver = new AgentSolver(problem, "DBAAgent", 20000);
-		solver.solve();
-		
-        // TODO - need to check if there is a solution 
-	    solver.printV(System.out);
-
-        // create a simple graph for the demo
-        graph = new UndirectedSparseMultigraph<AbstractAgent,Number>();
-    
-
-        int max_edge_id = 0;
-		for (int i = 0; i < solver.agents.length; i++) {
-			graph.addVertex(solver.agents[i]);
-			int neighbors[] = solver.agents[i].get_neighbors();
-			for (int j = 0; j <  neighbors.length ; j++)
-				graph.addEdge(max_edge_id++, solver.agents[i], solver.agents[j]);
-		}
-		
-		
-        
+    	super(new GridLayout(1,0));
+    	 this.graph = graph;
         	//TestGraphs.getOneComponentGraph();
         
         // create one layout for the graph
-		ISOMLayout<AbstractAgent,Number> layout = new ISOMLayout<AbstractAgent,Number>(graph);
-        
+		//ISOMLayout<AbstractAgent,Number> layout = new ISOMLayout<AbstractAgent,Number>(graph);
+    	 CircleLayout<AbstractAgent,Number> layout = new CircleLayout<AbstractAgent,Number>(graph);
         // create one model that all 3 views will share
         DefaultVisualizationModel<AbstractAgent,Number> visualizationModel =
             new DefaultVisualizationModel<AbstractAgent,Number>(layout, preferredSize);
@@ -151,9 +131,9 @@ public class GuiTest extends JApplet {
        
         vv1.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
         
-        EllipseVertexShapeTransformer<Number> x = new EllipseVertexShapeTransformer<Number>();
-        vv1.getRenderContext().setVertexShapeTransformer(new RectangleVertexShapeFunction<AbstractAgent>() );
-        vv1.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Line<AbstractAgent,Number>());
+       // EllipseVertexShapeTransformer<Number> x = new EllipseVertexShapeTransformer<Number>();
+       // vv1.getRenderContext().setVertexShapeTransformer(new RectangleVertexShapeFunction<AbstractAgent>() );
+       // vv1.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Line<AbstractAgent,Number>());
         //vv1.getRenderContext().getMultiLayerTransformer().addChangeListener(vv1);
 
         
@@ -173,7 +153,7 @@ public class GuiTest extends JApplet {
 						return "<html><center>x<p>"+input;
 					}}}));
         */
-        vv1.setBackground(Color.white);
+       // vv1.setBackground(Color.white);
 
         
         // create one pick support for all 3 views to share
@@ -196,8 +176,8 @@ public class GuiTest extends JApplet {
         // add default listener for ToolTips
  //       vv1.setVertexToolTipTransformer(new ToStringLabeller<AbstractAgent>());
         
-        Container content = getContentPane();
-        JPanel panel = new JPanel(new GridLayout(1,0));
+//        Container content = getContentPane();
+//        JPanel panel = new JPanel(new GridLayout(1,0));
         
         final JPanel p1 = new JPanel(new BorderLayout());
         
@@ -236,14 +216,14 @@ public class GuiTest extends JApplet {
         vv1.setToolTipText("<html><center>MouseWheel Scales Layout</center></html>");
  
 */                
-       JPanel flow = new JPanel();
+//       JPanel flow = new JPanel();
 //        flow.add(h1);
 //        flow.add(gm1.getModeComboBox());
 //        p1.add(flow, BorderLayout.SOUTH);//
-        flow = new JPanel();
+//        flow = new JPanel();
          
-        panel.add(p1);
-        content.add(panel);
+        this.add(p1);
+        //content.add(panel);
         
 
     }
@@ -284,17 +264,6 @@ public class GuiTest extends JApplet {
             return super.transform(v);
         }
     }
- 
-    
+     
 
-    /**
-     * a driver for this demo
-     */
-    public static void main(String[] args) {
-        JFrame f = new JFrame();
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.getContentPane().add(new GuiTest());
-        f.pack();
-        f.setVisible(true);
-    }
 }

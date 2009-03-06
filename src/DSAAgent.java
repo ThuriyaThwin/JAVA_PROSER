@@ -4,19 +4,13 @@ import com.sosnoski.util.stack.IntStack;
 
 abstract public class DSAAgent extends AbstractAgent {
 	int[][] weight_table[];
-	//MessageBox<MessageOK> ok_message_box; 
-	MessageBox<MessageImprove> improve_message_box; 
-	//boolean quasi_local_minimum = false;
-	//boolean can_move = false;
-	//IntStack coflicting_vars;  // TODO: this saves constraint checks but maybe should be counted
-	//int new_value;
+	MessageBox<MessageOK> ok_message_box; 
 	AbstractAgent agents_global_table[];
 	boolean completed=false; // will be set to false when not done
-	//int my_improve;
 	
 	int current_conflicts_count = 0;
 	int delta;
-	double p=0.3; // the probability to change the current value
+	double p=0.5; // the probability to change the current value
 	boolean is_improve = false;
 	Random rand_generator;
 	int seed = 4;
@@ -26,8 +20,8 @@ abstract public class DSAAgent extends AbstractAgent {
 
 		this.agents_global_table =  agents_table;
 		weight_table = new int [no_of_neighbors][][];
-		//ok_message_box = new MessageBox<MessageOK>();
-		improve_message_box = new MessageBox<MessageImprove>();
+		ok_message_box = new MessageBox<MessageOK>();
+		//improve_message_box = new MessageBox<MessageImprove>();
         
 		for (int i = 0; i < no_of_neighbors; i++) {
         	int neighbor_id = neighbor_map.get(i);
@@ -43,51 +37,44 @@ abstract public class DSAAgent extends AbstractAgent {
         			}     				
         		}
         }		
-		rand_generator = new Random(seed);
-		value = 1; /* TODO : change this to a random value */
+		//rand_generator = new Random(seed);
+		rand_generator = new Random();
+		value = rand_generator.nextInt(d); 
 		current_conflicts_count = evalueate(value); 
+		cycle_count = 0;
 		delta = current_conflicts_count; 
 	}
 	
 	public void run() {
 		while (! completed) {
-			send_improve(); // send my improve val if any
-			wait_improve(); // also check for assigning a new value
+			//System.out.println("doing cycle");
+			send_improve(); 
+			wait_improve(); 
 			cycle_count++;
 			if (cycle_count == max_cycles)
 				completed=true;
 	   }
+		System.out.println("after the run function");
 	}
-	
-	
-	
 		
 	protected void send_improve() {			
-		MessageImprove message = new MessageImprove(id, 0, value, termination_counter);/* there is no need to the my_improve for this algorithm */
+		MessageOK message = new MessageOK(id, value);
 		
 		for (int i = 0 ; i < no_of_neighbors; i++) {
 		    int neighbor_id = neighbor_map.get(i);
-		    ((DBAAgent)agents_global_table[neighbor_id]).improve_message_box.send_message(message);
+		    ((DSAAgent)agents_global_table[neighbor_id]).ok_message_box.send_message(message);
 		}
 	}
 	
 	
 	protected void read_neighbors_data(){
-		int check_res = 0;
-		
+		int neighbor_index = 0;
+				
 		for(int counter = 0; counter < no_of_neighbors; counter++) {
-			MessageImprove message = improve_message_box.read_message();
-			
-			termination_counter = Math.min(termination_counter, message.termination_counter);	
-			
-			if (problem.check(id, value, message.id, message.imporove_val)) {
-				check_res = 0;
-			}
-			else {
-				check_res = 1;
-			}
-			weight_table[message.id][value][message.imporove_val] = check_res;
-		}	
+			MessageOK message = ok_message_box.read_message();	
+			neighbor_index = neighbor_id_map.get(message.id);
+			agent_view[neighbor_index] = message.current_value;
+		}
 	}
 	
 	protected int get_lowest_delta_value(){
@@ -106,7 +93,7 @@ abstract public class DSAAgent extends AbstractAgent {
 			if (val == value)
 				continue;
 			after_read_conflicts_count = evalueate(val);
-			
+			//System.out.println("current_conflicts_count = " + current_conflicts_count);
 			if (after_read_conflicts_count < current_conflicts_count) {
 				is_improve = true;	
 				delta = current_conflicts_count - after_read_conflicts_count;
@@ -133,7 +120,6 @@ abstract public class DSAAgent extends AbstractAgent {
 		read_neighbors_data();
 		int v = get_lowest_delta_value();
 		select_next_value(is_improve, v, p);
-		
 	}
 	
 
@@ -145,6 +131,4 @@ abstract public class DSAAgent extends AbstractAgent {
 		
 		return eval;
 	}
-	
-	
 }

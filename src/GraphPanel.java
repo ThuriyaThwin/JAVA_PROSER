@@ -39,6 +39,7 @@ import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
 import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
 import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.util.TestGraphs;
 import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
@@ -62,6 +63,7 @@ import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.picking.MultiPickedState;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.picking.ShapePickSupport;
+import edu.uci.ics.jung.visualization.renderers.DefaultVertexLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.GradientVertexRenderer;
 import edu.uci.ics.jung.visualization.renderers.VertexLabelAsShapeRenderer;
 
@@ -72,24 +74,24 @@ import edu.uci.ics.jung.visualization.renderers.VertexLabelAsShapeRenderer;
  * @author Tom Nelson 
  * 
  */
-public class GraphPanel extends JPanel {
+public class GraphPanel<V,E> extends JPanel {
 
     /**
      * the graph
      */
-    Graph<AbstractAgent,Number> graph;
+    Graph<V,E> graph;
 
     /**
      * the visual components and renderers for the graph
      */
-    VisualizationViewer<AbstractAgent,Number> vv1;
+    VisualizationViewer<V,E> vv1;
     
     /**
      * the normal transformer
      */
 //    MutableTransformer transformer;
     
-    Dimension preferredSize = new Dimension(1000,800);
+    Dimension preferredSize = new Dimension(600,800);
     
     final String messageOne = "The mouse wheel will scale the model's layout when activated"+
     " in View 1. Since all three views share the same layout transformer, all three views will"+
@@ -113,7 +115,7 @@ public class GraphPanel extends JPanel {
      * demo the zoom features.
      * 
      */
-    public GraphPanel(	Graph<AbstractAgent,Number> graph  ) {
+    public GraphPanel(	Graph<V,E> graph  ) {
         
     	super(new GridLayout(1,0));
     	 this.graph = graph;
@@ -121,64 +123,35 @@ public class GraphPanel extends JPanel {
         
         // create one layout for the graph
 		//ISOMLayout<AbstractAgent,Number> layout = new ISOMLayout<AbstractAgent,Number>(graph);
-    	 CircleLayout<AbstractAgent,Number> layout = new CircleLayout<AbstractAgent,Number>(graph);
+    	 CircleLayout<V,E> layout = new CircleLayout<V,E>(graph);
         // create one model that all 3 views will share
-        DefaultVisualizationModel<AbstractAgent,Number> visualizationModel =
-            new DefaultVisualizationModel<AbstractAgent,Number>(layout, preferredSize);
+        DefaultVisualizationModel<V,E> visualizationModel =
+            new DefaultVisualizationModel<V,E>(layout, preferredSize);
  
         // create 3 views that share the same model
-        vv1 = new VisualizationViewer<AbstractAgent,Number>(visualizationModel, preferredSize);
+        vv1 = new VisualizationViewer<V,E>(visualizationModel, preferredSize);
        
         vv1.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
+       
+        // this class will provide both label drawing and vertex shapes
+        VertexLabelAsShapeRenderer<V,E> vlasr = new VertexLabelAsShapeRenderer<V,E>(vv1.getRenderContext());
         
-       // EllipseVertexShapeTransformer<Number> x = new EllipseVertexShapeTransformer<Number>();
-       // vv1.getRenderContext().setVertexShapeTransformer(new RectangleVertexShapeFunction<AbstractAgent>() );
-       // vv1.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Line<AbstractAgent,Number>());
-        //vv1.getRenderContext().getMultiLayerTransformer().addChangeListener(vv1);
-
+     // customize the render context
         
-        // customize the renderer
-        //vv1.getRenderer().setVertexRenderer(new GradientVertexRenderer<AbstractAgent,Number>(Color.gray, Color.white, true));
-        //vv1.getRenderer().setVertexLabelRenderer(vlasr);
-
-        /*
-        // customize the render context
         vv1.getRenderContext().setVertexLabelTransformer(
         		// this chains together Transformers so that the html tags
         		// are prepended to the toString method output
-        		new ChainedTransformer<Number,String>(new Transformer[]{
-        		new ToStringLabeller<Number>(),
-        		new Transformer<Number,String>() {
-					public String transform(Number input) {
-						return "<html><center>x<p>"+input;
-					}}}));
-        */
-       // vv1.setBackground(Color.white);
-
-        
-        // create one pick support for all 3 views to share
-       // GraphElementAccessor<AbstractAgent,Number> pickSupport = new ShapePickSupport<AbstractAgent,Number>(vv1);
-       //vv1.setPickSupport(pickSupport);
-
-
-        // create one picked state for all 3 views to share
-        
-       // PickedState<Number> pes = new MultiPickedState<Number>();
-       // MultiPickedState<AbstractAgent> pvs = new MultiPickedState<AbstractAgent>();
-       // vv1.setPickedVertexState(pvs);
-       // vv1.setPickedEdgeState(pes);
-
-        
-        // set an edge paint function that shows picked edges
- //       vv1.getRenderContext().setEdgeDrawPaintTransformer(new PickableEdgePaintTransformer<Number>(pes, Color.black, Color.red));
-//       vv1.getRenderContext().setVertexFillPaintTransformer(new PickableVertexPaintTransformer<AbstractAgent>(pvs, Color.red, Color.yellow));
-        
-        // add default listener for ToolTips
- //       vv1.setVertexToolTipTransformer(new ToStringLabeller<AbstractAgent>());
-        
-//        Container content = getContentPane();
-//        JPanel panel = new JPanel(new GridLayout(1,0));
-        
+        		new Transformer<V,String>() {
+					public String transform(V input) {
+						return input.toString();
+					}
+				}
+				);
+       
+        vv1.getRenderContext().setVertexShapeTransformer(vlasr);
+        vv1.getRenderer().setVertexLabelRenderer(vlasr);
+        vv1.getRenderer().setVertexRenderer(new GradientVertexRenderer<V,E>(Color.gray, Color.white, true));
+        vv1.setBackground(Color.white);
         final JPanel p1 = new JPanel(new BorderLayout());
         
         p1.add(new GraphZoomScrollPane(vv1));
@@ -216,12 +189,7 @@ public class GraphPanel extends JPanel {
         vv1.setToolTipText("<html><center>MouseWheel Scales Layout</center></html>");
  
 */                
-//       JPanel flow = new JPanel();
-//        flow.add(h1);
-//        flow.add(gm1.getModeComboBox());
-//        p1.add(flow, BorderLayout.SOUTH);//
-//        flow = new JPanel();
-         
+
         this.add(p1);
         //content.add(panel);
         

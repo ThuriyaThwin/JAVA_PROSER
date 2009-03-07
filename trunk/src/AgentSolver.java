@@ -10,16 +10,14 @@
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
 import jung_addtions.BFSTreeCreator;
 
-import edu.uci.ics.jung.algorithms.shortestpath.BFSDistanceLabeler;
-import edu.uci.ics.jung.graph.Graph;
+
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
-import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
+
 
 
 public class AgentSolver {
@@ -27,7 +25,7 @@ public class AgentSolver {
     protected int v[]; // the ordered array with all solution
 	protected int n;  // these can be taken from probelem but put here to simplify code
 	protected int d;
-	protected boolean use_any_time = false;
+	protected boolean use_any_time = true;
 	
 	// TODO - shouldn't be public
 	public AbstractAgent agents[];
@@ -37,8 +35,9 @@ public class AgentSolver {
      * the graph will be used for display
      */
 	UndirectedSparseGraph<AbstractAgent,Number> graph;
-
-    GraphPanel graph_panel;    
+	UndirectedSparseGraph<Number,Number> bfs_graph;
+    GraphPanel<AbstractAgent,Number>  graph_panel;    
+    GraphPanel<Number, Number> bfs_graph_panel;  
     
     
 	/**
@@ -80,7 +79,7 @@ public class AgentSolver {
 
         int max_edge_id = 0;
 		for (int i = 0; i < agents.length; i++) {
-			graph.addVertex(agents[i]);
+			//graph.addVertex(agents[i]);
 			int neighbors[] = agents[i].get_neighbors();
 			for (int j = 0; j <  neighbors.length ; j++) {
 				if (graph.findEdge(agents[i], agents[i]) == null)
@@ -90,11 +89,13 @@ public class AgentSolver {
 		
 		System.out.println("===> Graph vertex count:" + graph.getVertexCount());
 		
-		graph_panel = new GraphPanel(graph);
+		graph_panel = new GraphPanel<AbstractAgent, Number>(graph);
 	}
 	
 	public void setup_any_time() {
 		ArrayList<AbstractAgent> unvisited = new ArrayList<AbstractAgent> ();
+		bfs_graph = new UndirectedSparseGraph<Number,Number>(); 
+		int bfs_edge_id = 0;
 		for (int i = 0; i < agents.length ;i++)
 			unvisited.add(agents[i]);
 		
@@ -111,22 +112,30 @@ public class AgentSolver {
 				AbstractAgent  current = iter.next();
 				unvisited.remove(current);
 				AbstractAgent parent  = bfs_labeler.getParnt( current);	
-				if (parent == null) 
-					current.set_bfs_parent(AbstractAgent.NULL);
-				else 
-					current.set_bfs_parent(parent.get_id());
 				int current_distance = bfs_labeler.getDistance(graph, current);
 				current.set_bfs_distance(current_distance);
 				current.set_bfs_height(tree_height-current_distance);
-				parent.add_bfs_child(current.id);
+				if (parent == null) 
+					current.set_bfs_parent(AbstractAgent.NULL);
+				else {
+					current.set_bfs_parent(parent.get_id());
+					parent.add_bfs_child(current.id);
+					bfs_graph.addEdge(bfs_edge_id++,parent.id, current.id);
+				}
 			}
 		}
 		
+		bfs_graph_panel = new GraphPanel<Number, Number>(bfs_graph);
 	}
-	public GraphPanel get_panel() {
+	
+	public GraphPanel<AbstractAgent,Number> get_panel() {
 		return graph_panel;
 	}
 	
+	
+	public GraphPanel<Number,Number> get_bfs_panel() {
+		return bfs_graph_panel;
+	} 
 	public void solve() {
 		
 		Thread threads[] = new Thread[n];

@@ -1,5 +1,6 @@
 
 
+import java.awt.GridLayout;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
@@ -44,8 +45,9 @@ public class Flows {
 		AgentSolver solver = new AgentSolver(problem, AgentAlgorith, cycle_count);
 		solver.solve();
 		
-        	
+        f.setLayout(new GridLayout(1,2));
         f.getContentPane().add(solver.get_panel());
+        f.getContentPane().add(solver.get_bfs_panel());
         f.pack();
         f.setVisible(true);
         

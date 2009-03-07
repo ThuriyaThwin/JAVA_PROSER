@@ -1,10 +1,6 @@
-import java.util.ArrayList;
+
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.TreeMap;
-
-import edu.uci.ics.jung.graph.Graph;
-
 
 public abstract class AbstractAgent implements Runnable{
 	protected int id; // the id of current agent
@@ -87,7 +83,7 @@ public abstract class AbstractAgent implements Runnable{
 	public String toString()
 	{
 		String my_str;
-		my_str = "id:" + id + "\n" + "val:" +  value;
+		my_str = "<html><center>id:" + id + "<p>" + "val:" +  value;
 		
 		return my_str;
 	}
@@ -113,6 +109,13 @@ public abstract class AbstractAgent implements Runnable{
 	
 	public void set_bfs_height (int height) {
 		bfs_height = height;
+	}
+	
+	
+	public boolean equals(Object other) {
+		AbstractAgent otherVar = (AbstractAgent)  other;
+	      
+	      return (otherVar.id == this.id);
 	}
 
 }

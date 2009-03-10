@@ -4,8 +4,6 @@ import com.sosnoski.util.stack.IntStack;
 
 abstract public class DSAAgent extends AbstractAgent {
 	int[][] weight_table[];
-	MessageBox<MessageOK> ok_message_box; 
-	AbstractAgent agents_global_table[];
 	boolean completed=false; // will be set to false when not done
 	
 	int current_conflicts_count = 0;

@@ -5,13 +5,11 @@ import com.sosnoski.util.stack.IntStack;
 public class DBAAgent extends AbstractAgent {
 
 	int[][] weight_table[];
-	MessageBox<MessageOK> ok_message_box; 
 	MessageBox<MessageImprove> improve_message_box; 
 	boolean quasi_local_minimum = false;
 	boolean can_move = false;
 	IntStack coflicting_vars;  // TODO: this saves constraint checks but maybe should be counted
 	int new_value;
-	AbstractAgent agents_global_table[];
 	boolean completed=false; // will be set to false when not done
 	int my_improve;	
 
@@ -87,8 +85,8 @@ public class DBAAgent extends AbstractAgent {
 			value = new_value;
 		}
 
+		MessageOK message = new MessageOK(id, value);
 		for (int i = 0 ; i < no_of_neighbors; i++) {
-			MessageOK message = new MessageOK(id, value);
 		    int neighbor_id = neighbor_map.get(i);
 		    ((DBAAgent)agents_global_table[neighbor_id]).ok_message_box.send_message(message);
 		}

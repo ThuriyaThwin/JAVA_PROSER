@@ -15,6 +15,8 @@ public abstract class AbstractAgent implements Runnable{
 	protected int ncccs;          // What is the NCCCS of current agent
 	protected Problem problem;
 	protected int no_of_neighbors; // for fast looping over all neighbors
+	AbstractAgent agents_global_table[];
+	MessageBox<MessageOK> ok_message_box; 
 	
 	// these are used in order to decide when  to stop
 	protected int termination_counter; // when reaches n can stop
@@ -33,6 +35,7 @@ public abstract class AbstractAgent implements Runnable{
 	int best = NULL;
 	int best_index = NULL;
 	int current_step = 0;
+	int cost_i; // this cost of current step;
 
 	public AbstractAgent(int id, Problem problem, int max_cycles, AbstractAgent agents_table[]) {
 		d = problem.getD();
@@ -111,11 +114,34 @@ public abstract class AbstractAgent implements Runnable{
 		bfs_height = height;
 	}
 	
-	
-	public boolean equals(Object other) {
-		AbstractAgent otherVar = (AbstractAgent)  other;
-	      
-	      return (otherVar.id == this.id);
-	}
 
+	public void any_time_send_ok() {
+		MessageOK message = new MessageOK(id, value);
+		MessageOKAnyTimeParent parent_message = new MessageOKAnyTimeParent (id, value, cost_i);
+		MessageOKAnyTimeSon child_message = new MessageOKAnyTimeSon(id, value, best_index);
+		
+		for (int i = 0 ; i < no_of_neighbors; i++) {
+		    int neighbor_id = neighbor_map.get(i);
+		    if (bfs_children.contains(neighbor_id)) {
+		    	agents_global_table[neighbor_id].ok_message_box.send_message(message);
+		    }
+		    else if (bfs_parent_id == neighbor_id) {
+		    	agents_global_table[neighbor_id].ok_message_box.send_message(parent_message);
+		    }
+		    else
+		    	agents_global_table[neighbor_id].ok_message_box.send_message(child_message);
+		}
+		
+	}
+	
+	public void any_time_wait_ok() {
+		
+		for(int counter = 0; counter < no_of_neighbors; counter++) {
+			MessageOK message = ok_message_box.read_message();
+			int neighbor_index = neighbor_id_map.get(message.id);
+			
+			agent_view[neighbor_index] = message.current_value;
+		}
+  
+	}
 }

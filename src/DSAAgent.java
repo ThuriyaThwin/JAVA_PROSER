@@ -38,7 +38,6 @@ abstract public class DSAAgent extends AbstractAgent {
 		rand_generator = new Random();
 		value = rand_generator.nextInt(d); 
 		current_conflicts_count = evalueate(value); 
-		cycle_count = 0;
 		delta = current_conflicts_count; 
 	}
 	

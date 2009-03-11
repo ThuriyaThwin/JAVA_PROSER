@@ -76,7 +76,7 @@ public abstract class AbstractAgent implements Runnable{
 		
 		agent_view = new int[no_of_neighbors+1];
 		value = (int) (Math.random() * d);
-		cycle_count = 0;
+		cycle_count = -1;
 
 	}
 	
@@ -116,6 +116,7 @@ public abstract class AbstractAgent implements Runnable{
 	}
 	
 	public void set_bfs_params (int dist, int height) {
+	    System.out.println("id: " + id + "dist: " + dist + "height" + height);
 		bfs_height = height;
 		bfs_dist = dist;
 
@@ -126,8 +127,8 @@ public abstract class AbstractAgent implements Runnable{
         for (int i = 0 ; i < bfs_height; i++) {
         	cost_i[i]= Integer.MAX_VALUE;
         }
+        
         val_i_len = height + 2*dist;
-
         val_i = new int[val_i_len];
         
         bfs_children = new HashSet<Integer>();
@@ -154,19 +155,17 @@ public abstract class AbstractAgent implements Runnable{
 		
 		MessageOK message = new MessageOK(id, value);
 		
-		int i = cycle_count - bfs_height;
-		
-		if (cycle_count > 1)
-			cost_i[cycle_count%bfs_height] = evalueate(value);
+	    cost_i[cycle_count%bfs_height] = evalueate(value);
 		
 		int cost = Integer.MAX_VALUE;
 		
+		int i = cycle_count - bfs_height + 1;
 		if (i >= 0) {
 			val_i[cycle_count%val_i_len] = value;
 			cost = cost_i[i%bfs_height];;
 		}
 
-		
+
 		MessageOKAnyTime2Parent parent_message = new MessageOKAnyTime2Parent (id, value, cost, i);
 		MessageOKAnyTime2Son child_message = new MessageOKAnyTime2Son(id, value, best_index);
 		
@@ -215,15 +214,17 @@ public abstract class AbstractAgent implements Runnable{
 			
 			if (message.id == bfs_parent_id) {
 				MessageOKAnyTime2Son parent_message = (MessageOKAnyTime2Son) message;
+				//TODO
+				System.out.println(id + ": index " + best_index + "new val " + parent_message.best_index);
 				if (parent_message.best_index != best_index) {
 					best_index = parent_message.best_index ;
-					best = val_i[best_index];
+					best = val_i[best_index%val_i_len];
 				}
 			}
 			else if (bfs_children.contains(message.id)) {
 				MessageOKAnyTime2Parent child_message = (MessageOKAnyTime2Parent) message;
-				if (child_message.step_no >= 0)
-				    cost_i[child_message.step_no%bfs_height] += child_message.cost_i;
+				if (i >= 0)
+				    cost_i[i%bfs_height] += child_message.cost_i;
 			}
 		}
   
@@ -263,7 +264,7 @@ public abstract class AbstractAgent implements Runnable{
 	        	MessageOK message = ok_message_box.read_message();
 	        	if (message.id != bfs_parent_id) {
 					System.out.println("Bug !!! got a non parent message at post_steps");
-					System.exit(1);
+					//System.exit(1);
 	        	}
 	        	
 				MessageOKAnyTime2Son parent_message = (MessageOKAnyTime2Son) message;

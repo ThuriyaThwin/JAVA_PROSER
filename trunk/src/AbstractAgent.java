@@ -105,8 +105,6 @@ public abstract class AbstractAgent implements Runnable{
 	}
 	
 	public void set_bfs_parent(int parent_id) {
-		// TODO
-		System.out.println("setting parent to " + parent_id + " for " + id);
 		bfs_parent_id = parent_id;
 	}
 	
@@ -137,6 +135,7 @@ public abstract class AbstractAgent implements Runnable{
 	
 
 	protected void send_ok() {			
+		cycle_count++;
 		
 		if (any_time) {
 			any_time_send_ok();
@@ -156,10 +155,17 @@ public abstract class AbstractAgent implements Runnable{
 		MessageOK message = new MessageOK(id, value);
 		
 		int i = cycle_count - bfs_height;
+		
+		if (cycle_count > 1)
+			cost_i[cycle_count%bfs_height] = evalueate(value);
+		
 		int cost = Integer.MAX_VALUE;
 		
-		if (i >=0)
-			cost = cost_i[i%bfs_height];
+		if (i >= 0) {
+			val_i[cycle_count%val_i_len] = value;
+			cost = cost_i[i%bfs_height];;
+		}
+
 		
 		MessageOKAnyTime2Parent parent_message = new MessageOKAnyTime2Parent (id, value, cost, i);
 		MessageOKAnyTime2Son child_message = new MessageOKAnyTime2Son(id, value, best_index);
@@ -168,21 +174,16 @@ public abstract class AbstractAgent implements Runnable{
 		    int neighbor_id = neighbor_map.get(k);
 		    if (bfs_children.contains(neighbor_id)) {
 		    	agents_global_table[neighbor_id].ok_message_box.send_message(child_message);
-				// TODO
-				System.out.println("sent MessageOKAnyTime2Son to " + neighbor_id + " from " + id);
 		    }
 		    else if (bfs_parent_id == neighbor_id) {
 		    	agents_global_table[neighbor_id].ok_message_box.send_message(parent_message);
-				// TODO
-				System.out.println("sent MessageOKAnyTime2Parent to " + neighbor_id + " from " + id);
 		    }
 		    else {
 		    	agents_global_table[neighbor_id].ok_message_box.send_message(message);
-				// TODO
-				System.out.println("sent MessageOK to " + neighbor_id + " from " + id);
-
 		    }
+
 		}
+		
 		
 	}
 	
@@ -203,18 +204,14 @@ public abstract class AbstractAgent implements Runnable{
 	public void any_time_read_neighbors_ok() {
 		
 		// clear the place for step current_cycle
+		// TODO
 		int i = cycle_count - bfs_height;
-		if (i>= 0)
-		   cost_i[i%bfs_height] = 0;
 		
-
 		for(int counter = 0; counter < no_of_neighbors; counter++) {
 			MessageOK message = ok_message_box.read_message();
 			int neighbor_index = neighbor_id_map.get(message.id);
 			
 			agent_view[neighbor_index] = message.current_value;
-			
-
 			
 			if (message.id == bfs_parent_id) {
 				MessageOKAnyTime2Son parent_message = (MessageOKAnyTime2Son) message;
@@ -230,19 +227,17 @@ public abstract class AbstractAgent implements Runnable{
 			}
 		}
   
-		// root 
+
 		if (i >= 0) {
-			if ((bfs_parent_id == NULL) && cost_i[i%bfs_height] < best_cost) {
-				best_cost = cost_i[i];
-				best = val_i[i];
+			//root
+			if ((bfs_parent_id == NULL) && (cost_i[i%bfs_height] < best_cost)) {
+				best_cost = cost_i[i%bfs_height];
+				best = val_i[i%val_i_len];
 				best_index = i;
 			}
 		
-			val_i[i%val_i_len] = value;
-			cost_i[i%bfs_height] = evalueate(value);
 		}
 		
-		current_step++;
 	}
 	
 	protected int evalueate(int current_val) {
@@ -287,7 +282,5 @@ public abstract class AbstractAgent implements Runnable{
 	        	agents_global_table[child_id].ok_message_box.send_message(child_message);
 	        }
         }
-        
-        value = best;
 	}
 }

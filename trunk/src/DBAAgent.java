@@ -47,7 +47,6 @@ public class DBAAgent extends AbstractAgent {
 			wait_ok();
 			send_improve();
 			wait_improve();
-			cycle_count++;
 			
 			if (cycle_count == max_cycles)
 				completed=true;

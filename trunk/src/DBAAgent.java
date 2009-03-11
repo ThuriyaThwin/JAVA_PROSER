@@ -12,8 +12,8 @@ public class DBAAgent extends AbstractAgent {
 	boolean completed=false; // will be set to false when not done
 	int my_improve;	
 
-	public DBAAgent(int id, Problem problem, int max_cycles,  AbstractAgent agents_table[]) {
-		super(id, problem, max_cycles, (AbstractAgent[]) agents_table);
+	public DBAAgent(int id, Problem problem, int max_cycles,  AbstractAgent agents_table[],  boolean any_time) {
+		super(id, problem, max_cycles, (AbstractAgent[]) agents_table, any_time);
 
 		this.agents_global_table =  agents_table;
 		weight_table = new int [no_of_neighbors][][];

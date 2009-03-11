@@ -27,7 +27,7 @@ public class Flows {
 		//run_queens("DBAAgent", 4, 20000);
 		//run_queens("DSA_A_Agent", 4, 20000);
 		//run_queens("DSA_D_Agent", 4, 20000);
-		run_gui_test("DBAAgent", 5, 20000);
+		run_gui_test("DBAAgent", 4, 20000);
 	    //make_samples();
 		//run_tests();
 		//run_example();
@@ -42,12 +42,14 @@ public class Flows {
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
 		Problem problem = new Problem(queens_count);
+        //Problem problem = new Problem(2, 2, 0.99,0.5);
 		AgentSolver solver = new AgentSolver(problem, AgentAlgorith, cycle_count);
 		solver.solve();
 		
         f.setLayout(new GridLayout(1,2));
         f.getContentPane().add(solver.get_panel());
-        f.getContentPane().add(solver.get_bfs_panel());
+        if (solver.use_any_time)
+            f.getContentPane().add(solver.get_bfs_panel());
         f.pack();
         f.setVisible(true);
         

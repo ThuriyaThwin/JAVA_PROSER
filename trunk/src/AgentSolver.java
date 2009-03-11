@@ -25,7 +25,7 @@ public class AgentSolver {
     protected int v[]; // the ordered array with all solution
 	protected int n;  // these can be taken from probelem but put here to simplify code
 	protected int d;
-	protected boolean use_any_time = true;
+	public boolean use_any_time = true;
 	
 	// TODO - shouldn't be public
 	public AbstractAgent agents[];
@@ -58,7 +58,7 @@ public class AgentSolver {
 				Class cls =  Class.forName(agentType);	    
 			    Constructor ct[] = cls.getDeclaredConstructors();
 			    //agents[i] = new DBAAgent(i, problem, max_cycles, agents);
-			    agents[i] = (AbstractAgent) ct[0].newInstance(i, problem, max_cycles, agents);
+			    agents[i] = (AbstractAgent) ct[0].newInstance(i, problem, max_cycles, agents, use_any_time);
 		    }
 		    catch (Throwable e) {
 		      System.err.println(e);
@@ -111,13 +111,13 @@ public class AgentSolver {
 			while (iter.hasNext()) {
 				AbstractAgent  current = iter.next();
 				unvisited.remove(current);
-				AbstractAgent parent  = bfs_labeler.getParnt( current);	
+				AbstractAgent parent  = bfs_labeler.getParnt(current);	
 				int current_distance = bfs_labeler.getDistance(graph, current);
 				current.set_bfs_params(current_distance, (tree_height-current_distance));
 				if (parent == null) 
 					current.set_bfs_parent(AbstractAgent.NULL);
 				else {
-					current.set_bfs_parent(parent.get_id());
+					current.set_bfs_parent(parent.id);
 					parent.add_bfs_child(current.id);
 					bfs_graph.addEdge(bfs_edge_id++,parent.id, current.id);
 				}

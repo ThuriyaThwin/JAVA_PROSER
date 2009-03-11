@@ -45,7 +45,7 @@ public abstract class AbstractAgent implements Runnable{
 	private int val_i[]; // the value history
 	private int val_i_len;
 
-	public AbstractAgent(int id, Problem problem, int max_cycles, AbstractAgent agents_table[]) {
+	public AbstractAgent(int id, Problem problem, int max_cycles, AbstractAgent agents_table[], boolean any_time) {
 		d = problem.getD();
 		n = problem.getN();
 		this.max_cycles = max_cycles;
@@ -53,6 +53,7 @@ public abstract class AbstractAgent implements Runnable{
 		this.problem = problem;
 		termination_counter = 0;
 		consistent = false;
+		this.any_time = any_time;
 		
 		
 		
@@ -104,6 +105,8 @@ public abstract class AbstractAgent implements Runnable{
 	}
 	
 	public void set_bfs_parent(int parent_id) {
+		// TODO
+		System.out.println("setting parent to " + parent_id + " for " + id);
 		bfs_parent_id = parent_id;
 	}
 	
@@ -128,15 +131,23 @@ public abstract class AbstractAgent implements Runnable{
         val_i_len = height + 2*dist;
 
         val_i = new int[val_i_len];
+        
+        bfs_children = new HashSet<Integer>();
 	}
 	
 
 	protected void send_ok() {			
-		MessageOK message = new MessageOK(id, value);
 		
-		for (int i = 0 ; i < no_of_neighbors; i++) {
-		    int neighbor_id = neighbor_map.get(i);
-		    agents_global_table[neighbor_id].ok_message_box.send_message(message);
+		if (any_time) {
+			any_time_send_ok();
+		}
+			else {
+			MessageOK message = new MessageOK(id, value);
+			
+			for (int i = 0 ; i < no_of_neighbors; i++) {
+			    int neighbor_id = neighbor_map.get(i);
+			    agents_global_table[neighbor_id].ok_message_box.send_message(message);
+			}
 		}
 	}
 	
@@ -145,38 +156,56 @@ public abstract class AbstractAgent implements Runnable{
 		MessageOK message = new MessageOK(id, value);
 		
 		int i = cycle_count - bfs_height;
-		MessageOKAnyTime2Parent parent_message = new MessageOKAnyTime2Parent (id, value, cost_i[i%val_i_len], i);
-		MessageOKAny2TimeSon child_message = new MessageOKAny2TimeSon(id, value, best_index);
+		int cost = Integer.MAX_VALUE;
+		
+		if (i >=0)
+			cost = cost_i[i%bfs_height];
+		
+		MessageOKAnyTime2Parent parent_message = new MessageOKAnyTime2Parent (id, value, cost, i);
+		MessageOKAnyTime2Son child_message = new MessageOKAnyTime2Son(id, value, best_index);
 		
 		for (int k = 0 ; k < no_of_neighbors; k++) {
 		    int neighbor_id = neighbor_map.get(k);
 		    if (bfs_children.contains(neighbor_id)) {
-		    	agents_global_table[neighbor_id].ok_message_box.send_message(message);
+		    	agents_global_table[neighbor_id].ok_message_box.send_message(child_message);
+				// TODO
+				System.out.println("sent MessageOKAnyTime2Son to " + neighbor_id + " from " + id);
 		    }
 		    else if (bfs_parent_id == neighbor_id) {
 		    	agents_global_table[neighbor_id].ok_message_box.send_message(parent_message);
+				// TODO
+				System.out.println("sent MessageOKAnyTime2Parent to " + neighbor_id + " from " + id);
 		    }
-		    else
-		    	agents_global_table[neighbor_id].ok_message_box.send_message(child_message);
+		    else {
+		    	agents_global_table[neighbor_id].ok_message_box.send_message(message);
+				// TODO
+				System.out.println("sent MessageOK to " + neighbor_id + " from " + id);
+
+		    }
 		}
 		
 	}
 	
 	protected void read_neighbors_ok(){
-		int neighbor_index = 0;
-				
-		for(int counter = 0; counter < no_of_neighbors; counter++) {
-			MessageOK message = ok_message_box.read_message();	
-			neighbor_index = neighbor_id_map.get(message.id);
-			agent_view[neighbor_index] = message.current_value;
+
+		if (any_time) {
+			any_time_read_neighbors_ok();
+		}
+		else {
+			for(int counter = 0; counter < no_of_neighbors; counter++) {
+				MessageOK message = ok_message_box.read_message();	
+				int neighbor_index = neighbor_id_map.get(message.id);
+				agent_view[neighbor_index] = message.current_value;
+			}
 		}
 	}
 	
-	public void any_time_wait_ok() {
+	public void any_time_read_neighbors_ok() {
 		
 		// clear the place for step current_cycle
 		int i = cycle_count - bfs_height;
-		cost_i[i%bfs_height] = 0;
+		if (i>= 0)
+		   cost_i[i%bfs_height] = 0;
 		
 
 		for(int counter = 0; counter < no_of_neighbors; counter++) {
@@ -188,7 +217,7 @@ public abstract class AbstractAgent implements Runnable{
 
 			
 			if (message.id == bfs_parent_id) {
-				MessageOKAny2TimeSon parent_message = (MessageOKAny2TimeSon) message;
+				MessageOKAnyTime2Son parent_message = (MessageOKAnyTime2Son) message;
 				if (parent_message.best_index != best_index) {
 					best_index = parent_message.best_index ;
 					best = val_i[best_index];
@@ -196,18 +225,22 @@ public abstract class AbstractAgent implements Runnable{
 			}
 			else if (bfs_children.contains(message.id)) {
 				MessageOKAnyTime2Parent child_message = (MessageOKAnyTime2Parent) message;
-				cost_i[child_message.step_no] += child_message.cost_i;
+				if (child_message.step_no >= 0)
+				    cost_i[child_message.step_no%bfs_height] += child_message.cost_i;
 			}
 		}
   
 		// root 
-		if ((bfs_parent_id == NULL) && cost_i[i] < best_cost) {
-			best_cost = cost_i[i];
-			best = val_i[i];
-			best_index = i;
-		}
+		if (i >= 0) {
+			if ((bfs_parent_id == NULL) && cost_i[i%bfs_height] < best_cost) {
+				best_cost = cost_i[i];
+				best = val_i[i];
+				best_index = i;
+			}
 		
-		// TODO next val decision
+			val_i[i%val_i_len] = value;
+			cost_i[i%bfs_height] = evalueate(value);
+		}
 		
 		current_step++;
 	}
@@ -238,7 +271,7 @@ public abstract class AbstractAgent implements Runnable{
 					System.exit(1);
 	        	}
 	        	
-				MessageOKAny2TimeSon parent_message = (MessageOKAny2TimeSon) message;
+				MessageOKAnyTime2Son parent_message = (MessageOKAnyTime2Son) message;
 				if (parent_message.best_index != best_index) {
 					best_index = parent_message.best_index ;
 					best = val_i[best_index];
@@ -247,7 +280,7 @@ public abstract class AbstractAgent implements Runnable{
         	
         	   
             // send message to children
-	        MessageOKAny2TimeSon child_message = new MessageOKAny2TimeSon(id, value, best_index);
+	        MessageOKAnyTime2Son child_message = new MessageOKAnyTime2Son(id, value, best_index);
 	        Iterator<Integer> iter = bfs_children.iterator();
 	        while (iter.hasNext()) {
 	        	int child_id = iter.next().intValue();

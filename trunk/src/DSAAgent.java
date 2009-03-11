@@ -12,8 +12,8 @@ abstract public class DSAAgent extends AbstractAgent {
 	Random rand_generator;
 	int seed = 4;
 	
-	public DSAAgent(int id, Problem problem, int max_cycles,  AbstractAgent agents_table[]) {
-		super(id, problem, max_cycles, (AbstractAgent[]) agents_table);
+	public DSAAgent(int id, Problem problem, int max_cycles,  AbstractAgent agents_table[], boolean any_time) {
+		super(id, problem, max_cycles, (AbstractAgent[]) agents_table, any_time);
 
 		this.agents_global_table =  agents_table;
 		weight_table = new int [no_of_neighbors][][];

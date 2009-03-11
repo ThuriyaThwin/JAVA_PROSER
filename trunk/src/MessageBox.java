@@ -3,14 +3,14 @@
  */
 import java.util.*;
 public class MessageBox<M> {
-	Stack<M> messages;
+	ArrayList<M> messages;
 	
 	MessageBox() {
-		messages = new Stack<M>();
+		messages = new ArrayList<M>();
 	}
 	
 	synchronized void send_message(M message) {
-		messages.push(message);
+		messages.add(message);
 		notify();
 	}
 	
@@ -26,7 +26,9 @@ public class MessageBox<M> {
 			}
 		}
 		
-		return messages.pop();
+		M ret_val = messages.get(0);
+		messages.remove(0);
+		return ret_val;
 	}
 	
 

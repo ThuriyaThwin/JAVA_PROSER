@@ -131,6 +131,10 @@ public abstract class AbstractAgent implements Runnable{
         val_i_len = height + 2*dist;
         val_i = new int[val_i_len];
         
+        for (int i = 0 ; i < val_i_len; i++) {
+        	val_i[i]= NULL;
+        }
+        
         bfs_children = new HashSet<Integer>();
 	}
 	
@@ -160,7 +164,7 @@ public abstract class AbstractAgent implements Runnable{
 		
 		int cost = Integer.MAX_VALUE;
 		
-		int i = cycle_count - bfs_height - 1 ;
+		int i = cycle_count - bfs_height;
 		if (i >= 0) {
 			cost = cost_i[i%bfs_height];;
 		}
@@ -201,7 +205,7 @@ public abstract class AbstractAgent implements Runnable{
 	
 	public void any_time_read_neighbors_ok() {
 		
-		int i = cycle_count - bfs_height;
+		int i = cycle_count - bfs_height + 1;
 		
 		for(int counter = 0; counter < no_of_neighbors; counter++) {
 			MessageOK message = ok_message_box.read_message();
@@ -220,7 +224,7 @@ public abstract class AbstractAgent implements Runnable{
 			else if (bfs_children.contains(message.id)) {
 				MessageOKAnyTime2Parent child_message = (MessageOKAnyTime2Parent) message;
 				//TODO
-				System.out.println(id + ": i " + i +  " step " + child_message.step_no);
+				System.out.println("id: " + id + " child id: " + child_message.id + ": i " + i +  " step " + child_message.step_no);
 				if (child_message.step_no >= 0)
 				    cost_i[child_message.step_no%bfs_height] += child_message.cost_i;
 			}
@@ -250,8 +254,8 @@ public abstract class AbstractAgent implements Runnable{
 	
 	public void run() {
         do_alg();
-        if (any_time)
-        	post_alg_steps();
+    //    if (any_time)
+    //    	post_alg_steps();
         
 	}
 	

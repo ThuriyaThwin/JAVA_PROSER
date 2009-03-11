@@ -41,9 +41,7 @@ public class Flows {
         JFrame f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-		//Problem problem = new Problem(queens_count);
-        //Problem problem = new Problem(2, 2, 0.5,0.9);
-        Problem problem = new Problem(4);
+		Problem problem = new Problem(queens_count);
 		AgentSolver solver = new AgentSolver(problem, AgentAlgorith, cycle_count);
 		solver.solve();
 		

@@ -47,7 +47,6 @@ abstract public class DSAAgent extends AbstractAgent {
 			//System.out.println("doing cycle");
 			send_ok(); 
 			wait_ok(); 
-			cycle_count++;
 			if (cycle_count == max_cycles)
 				completed=true;
 	   }

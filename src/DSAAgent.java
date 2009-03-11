@@ -4,8 +4,7 @@ import com.sosnoski.util.stack.IntStack;
 
 abstract public class DSAAgent extends AbstractAgent {
 	boolean completed=false; // will be set to false when not done
-	
-	int current_conflicts_count = 0;
+	int current_conflicts_count;
 	int delta;
 	double p=0.5; // the probability to change the current value
 	boolean is_improve = false;
@@ -64,19 +63,21 @@ abstract public class DSAAgent extends AbstractAgent {
 		is_improve = false;
 		int best_value = value;
 		int after_read_conflicts_count;
+		int new_conflicts_count = current_conflicts_count;
 		
 		for (int val = 0 ; val < d ; val++) {
 			if (val == value)
 				continue;
 			after_read_conflicts_count = evalueate(val);
 			//System.out.println("current_conflicts_count = " + current_conflicts_count);
-			if (after_read_conflicts_count < current_conflicts_count) {
+			if (after_read_conflicts_count < new_conflicts_count) {
 				is_improve = true;	
 				delta = current_conflicts_count - after_read_conflicts_count;
-				current_conflicts_count = after_read_conflicts_count;
+				new_conflicts_count = after_read_conflicts_count;
 				best_value = val;	
 			}
 		}
+		
 		return best_value;
 	}
 	
@@ -96,6 +97,7 @@ abstract public class DSAAgent extends AbstractAgent {
 		read_neighbors_ok();
 		int v = get_lowest_delta_value();
 		select_next_value(is_improve, v, p);
+		current_conflicts_count = evalueate(value);
 	}
 	
 }

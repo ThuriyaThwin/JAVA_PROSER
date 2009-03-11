@@ -27,7 +27,7 @@ public class Flows {
 		//run_queens("DBAAgent", 4, 20000);
 		//run_queens("DSA_A_Agent", 4, 20000);
 		//run_queens("DSA_D_Agent", 4, 20000);
-		run_gui_test("DBAAgent", 4, 20000);
+		run_gui_test("DBAAgent", 5, 20000);
 	    //make_samples();
 		//run_tests();
 		//run_example();

@@ -4,7 +4,6 @@ import com.sosnoski.util.stack.IntStack;
 
 public class DBAAgent extends AbstractAgent {
 
-	int[][] weight_table[];
 	MessageBox<MessageImprove> improve_message_box; 
 	boolean quasi_local_minimum = false;
 	boolean can_move = false;
@@ -40,9 +39,9 @@ public class DBAAgent extends AbstractAgent {
 		
 	}
 	
-	public void run() {
+	public void do_alg() {
 		while (! completed) {
-			send_ok();	
+			dba_send_ok();	
 			if (completed)
 			   break;
 			wait_ok();
@@ -63,7 +62,7 @@ public class DBAAgent extends AbstractAgent {
 	   }
 	}
 	
-	private void send_ok() {
+	private void dba_send_ok() {
 		if (consistent) {
 			termination_counter++;
 			if (termination_counter >= n) {
@@ -85,20 +84,12 @@ public class DBAAgent extends AbstractAgent {
 			value = new_value;
 		}
 
-		MessageOK message = new MessageOK(id, value);
-		for (int i = 0 ; i < no_of_neighbors; i++) {
-		    int neighbor_id = neighbor_map.get(i);
-		    ((DBAAgent)agents_global_table[neighbor_id]).ok_message_box.send_message(message);
-		}
+		send_ok();
 		
 	}
 	
 	private void wait_ok() {
-		for(int counter = 0; counter < no_of_neighbors; counter++) {
-			MessageOK message = ok_message_box.read_message();
-			int neighbor_index = neighbor_id_map.get(message.id);
-			agent_view[neighbor_index] = message.current_value;
-		}
+		read_neighbors_ok();
 	}
 	
 	private void send_improve() {
@@ -160,13 +151,4 @@ public class DBAAgent extends AbstractAgent {
 		}
 	}
 	
-	private int evalueate(int current_val) {
-		int eval = 0;
-		for (int i=0; i < no_of_neighbors; i++) {
-			eval += weight_table[i][current_val][agent_view[i]];
-		}
-		
-		return eval;
-	}
-
 }

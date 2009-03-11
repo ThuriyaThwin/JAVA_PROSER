@@ -3,7 +3,6 @@ import java.util.Random;
 import com.sosnoski.util.stack.IntStack;
 
 abstract public class DSAAgent extends AbstractAgent {
-	int[][] weight_table[];
 	boolean completed=false; // will be set to false when not done
 	
 	int current_conflicts_count = 0;
@@ -43,37 +42,18 @@ abstract public class DSAAgent extends AbstractAgent {
 		delta = current_conflicts_count; 
 	}
 	
-	public void run() {
+	public void do_alg() {
 		while (! completed) {
 			//System.out.println("doing cycle");
-			send_improve(); 
-			wait_improve(); 
+			send_ok(); 
+			wait_ok(); 
 			cycle_count++;
 			if (cycle_count == max_cycles)
 				completed=true;
 	   }
 		System.out.println("after the run function");
 	}
-		
-	protected void send_improve() {			
-		MessageOK message = new MessageOK(id, value);
-		
-		for (int i = 0 ; i < no_of_neighbors; i++) {
-		    int neighbor_id = neighbor_map.get(i);
-		    ((DSAAgent)agents_global_table[neighbor_id]).ok_message_box.send_message(message);
-		}
-	}
-	
-	
-	protected void read_neighbors_data(){
-		int neighbor_index = 0;
-				
-		for(int counter = 0; counter < no_of_neighbors; counter++) {
-			MessageOK message = ok_message_box.read_message();	
-			neighbor_index = neighbor_id_map.get(message.id);
-			agent_view[neighbor_index] = message.current_value;
-		}
-	}
+			
 	
 	protected int get_lowest_delta_value(){
 		/*
@@ -114,19 +94,10 @@ abstract public class DSAAgent extends AbstractAgent {
 	
 	abstract void select_next_value(boolean is_improve, int v, double p); 
 	
-	protected void wait_improve() {
-		read_neighbors_data();
+	protected void wait_ok() {
+		read_neighbors_ok();
 		int v = get_lowest_delta_value();
 		select_next_value(is_improve, v, p);
 	}
 	
-
-	protected int evalueate(int current_val) {
-		int eval = 0;
-		for (int i=0; i < no_of_neighbors; i++) {
-			eval += weight_table[i][current_val][agent_view[i]];
-		}
-		
-		return eval;
-	}
 }

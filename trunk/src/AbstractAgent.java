@@ -1,9 +1,11 @@
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 
 public abstract class AbstractAgent implements Runnable{
 	protected int id; // the id of current agent
+	protected int[][] weight_table[]; // how much does each conflict cost
 	protected int agent_view[]; // agent view for neighbors
 	                                              // tree map will enable going over only part of children
 	protected int d;
@@ -26,16 +28,22 @@ public abstract class AbstractAgent implements Runnable{
 	HashMap<Integer,Integer> neighbor_map; // map index to id
 	HashMap<Integer,Integer> neighbor_id_map; // map id to index
 	
+	protected abstract void do_alg();
+	
 	// Variables for AnyTime implementation 
+	protected boolean any_time=false;
 	public final static int NULL = -1;
-	int bfs_parent_id;
-	HashSet<Integer> bfs_children;
-	int bfs_height;
-	int bfs_distance;
-	int best = NULL;
-	int best_index = NULL;
-	int current_step = 0;
-	int cost_i; // this cost of current step;
+	private int bfs_parent_id = NULL;
+	private HashSet<Integer> bfs_children;
+	private int bfs_height;
+	private int bfs_dist;
+	private int best = NULL;
+	private int best_index = NULL;
+	private int best_cost = Integer.MAX_VALUE; // this is used only by root
+	private int current_step = 0;
+	private int cost_i[]; // this cost of steps history
+	private int val_i[]; // the value history
+	private int val_i_len;
 
 	public AbstractAgent(int id, Problem problem, int max_cycles, AbstractAgent agents_table[]) {
 		d = problem.getD();
@@ -106,22 +114,42 @@ public abstract class AbstractAgent implements Runnable{
          bfs_children.add(child_id);
 	}
 	
-	public void set_bfs_distance(int dist) {
-		bfs_distance = dist;
-	}
-	
-	public void set_bfs_height (int height) {
+	public void set_bfs_params (int dist, int height) {
 		bfs_height = height;
+		bfs_dist = dist;
+
+        cost_i = new int[bfs_height];
+        
+        // need to start with maximal values in order to make sure that there 
+        // are no false results
+        for (int i = 0 ; i < bfs_height; i++) {
+        	cost_i[i]= Integer.MAX_VALUE;
+        }
+        val_i_len = height + 2*dist;
+
+        val_i = new int[val_i_len];
 	}
 	
 
-	public void any_time_send_ok() {
+	protected void send_ok() {			
 		MessageOK message = new MessageOK(id, value);
-		MessageOKAnyTimeParent parent_message = new MessageOKAnyTimeParent (id, value, cost_i);
-		MessageOKAnyTimeSon child_message = new MessageOKAnyTimeSon(id, value, best_index);
 		
 		for (int i = 0 ; i < no_of_neighbors; i++) {
 		    int neighbor_id = neighbor_map.get(i);
+		    agents_global_table[neighbor_id].ok_message_box.send_message(message);
+		}
+	}
+	
+	public void any_time_send_ok() {
+		
+		MessageOK message = new MessageOK(id, value);
+		
+		int i = cycle_count - bfs_height;
+		MessageOKAnyTime2Parent parent_message = new MessageOKAnyTime2Parent (id, value, cost_i[i%val_i_len], i);
+		MessageOKAny2TimeSon child_message = new MessageOKAny2TimeSon(id, value, best_index);
+		
+		for (int k = 0 ; k < no_of_neighbors; k++) {
+		    int neighbor_id = neighbor_map.get(k);
 		    if (bfs_children.contains(neighbor_id)) {
 		    	agents_global_table[neighbor_id].ok_message_box.send_message(message);
 		    }
@@ -134,14 +162,99 @@ public abstract class AbstractAgent implements Runnable{
 		
 	}
 	
+	protected void read_neighbors_ok(){
+		int neighbor_index = 0;
+				
+		for(int counter = 0; counter < no_of_neighbors; counter++) {
+			MessageOK message = ok_message_box.read_message();	
+			neighbor_index = neighbor_id_map.get(message.id);
+			agent_view[neighbor_index] = message.current_value;
+		}
+	}
+	
 	public void any_time_wait_ok() {
 		
+		// clear the place for step current_cycle
+		int i = cycle_count - bfs_height;
+		cost_i[i%bfs_height] = 0;
+		
+
 		for(int counter = 0; counter < no_of_neighbors; counter++) {
 			MessageOK message = ok_message_box.read_message();
 			int neighbor_index = neighbor_id_map.get(message.id);
 			
 			agent_view[neighbor_index] = message.current_value;
+			
+
+			
+			if (message.id == bfs_parent_id) {
+				MessageOKAny2TimeSon parent_message = (MessageOKAny2TimeSon) message;
+				if (parent_message.best_index != best_index) {
+					best_index = parent_message.best_index ;
+					best = val_i[best_index];
+				}
+			}
+			else if (bfs_children.contains(message.id)) {
+				MessageOKAnyTime2Parent child_message = (MessageOKAnyTime2Parent) message;
+				cost_i[child_message.step_no] += child_message.cost_i;
+			}
 		}
   
+		// root 
+		if ((bfs_parent_id == NULL) && cost_i[i] < best_cost) {
+			best_cost = cost_i[i];
+			best = val_i[i];
+			best_index = i;
+		}
+		
+		// TODO next val decision
+		
+		current_step++;
+	}
+	
+	protected int evalueate(int current_val) {
+		int eval = 0;
+		for (int i=0; i < no_of_neighbors; i++) {
+			eval += weight_table[i][current_val][agent_view[i]];
+		}
+		
+		return eval;
+	}
+	
+	public void run() {
+        do_alg();
+        if (any_time)
+        	post_alg_steps();
+        
+	}
+	
+	public void post_alg_steps() {
+        for (int k = 0; k < (bfs_dist + bfs_height) ; k++) {
+        	// read parent message
+        	if (bfs_parent_id != NULL) {
+	        	MessageOK message = ok_message_box.read_message();
+	        	if (message.id != bfs_parent_id) {
+					System.out.println("Bug !!! got a non parent message at post_steps");
+					System.exit(1);
+	        	}
+	        	
+				MessageOKAny2TimeSon parent_message = (MessageOKAny2TimeSon) message;
+				if (parent_message.best_index != best_index) {
+					best_index = parent_message.best_index ;
+					best = val_i[best_index];
+				}
+        	}
+        	
+        	   
+            // send message to children
+	        MessageOKAny2TimeSon child_message = new MessageOKAny2TimeSon(id, value, best_index);
+	        Iterator<Integer> iter = bfs_children.iterator();
+	        while (iter.hasNext()) {
+	        	int child_id = iter.next().intValue();
+	        	agents_global_table[child_id].ok_message_box.send_message(child_message);
+	        }
+        }
+        
+        value = best;
 	}
 }

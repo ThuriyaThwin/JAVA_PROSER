@@ -113,8 +113,7 @@ public class AgentSolver {
 				unvisited.remove(current);
 				AbstractAgent parent  = bfs_labeler.getParnt( current);	
 				int current_distance = bfs_labeler.getDistance(graph, current);
-				current.set_bfs_distance(current_distance);
-				current.set_bfs_height(tree_height-current_distance);
+				current.set_bfs_params(current_distance, (tree_height-current_distance));
 				if (parent == null) 
 					current.set_bfs_parent(AbstractAgent.NULL);
 				else {

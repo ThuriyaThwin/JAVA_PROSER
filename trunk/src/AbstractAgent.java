@@ -254,8 +254,10 @@ public abstract class AbstractAgent implements Runnable{
 	
 	public void run() {
         do_alg();
-    //    if (any_time)
-    //    	post_alg_steps();
+        if (any_time) {
+           post_alg_steps();
+           value = best;
+        }
         
 	}
 	

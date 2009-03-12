@@ -6,6 +6,7 @@ abstract public class DSAAgent extends AbstractAgent {
 	boolean completed=false; // will be set to false when not done
 	int current_conflicts_count;
 	int delta;
+	//  TODO : may be p should be input
 	double p=0.5; // the probability to change the current value
 	boolean is_improve = false;
 	Random rand_generator;
@@ -70,7 +71,7 @@ abstract public class DSAAgent extends AbstractAgent {
 			if (val == value)
 				continue;
 			after_read_conflicts_count = evalueate(val);
-			//System.out.println("current_conflicts_count = " + current_conflicts_count);
+			System.out.println("current_conflicts_count = " + current_conflicts_count);
 			if (after_read_conflicts_count < new_conflicts_count) {
 				is_improve = true;	
 				delta = current_conflicts_count - after_read_conflicts_count;

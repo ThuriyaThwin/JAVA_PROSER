@@ -26,8 +26,14 @@ public class Flows {
 	public static void main(String[] args) {
 		//run_queens("DBAAgent", 4, 20000);
 		//run_queens("DSA_A_Agent", 4, 20000);
-	     run_gui_test("DSA_E_Agent", 10, 20000);
-		//run_gui_test("DBAAgent", 10, 10000);
+		
+		//run_gui_test("DSA_B_Agent", 10, 40000); // not working
+	    // run_gui_test("DSA_C_Agent", 10, 40000); // not working
+	     run_gui_test("DSA_D_Agent", 10, 20000);
+		 
+		//run_gui_test("DSA_E_Agent", 10, 20000);
+	     		
+	     //run_gui_test("DBAAgent", 10, 10000);
 	    //make_samples();
 		//run_tests();
 		//run_example();

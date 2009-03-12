@@ -23,9 +23,9 @@ import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 public class AgentSolver {
 	protected Problem problem;    // the problem to solve
     protected int v[]; // the ordered array with all solution
-	protected int n;  // these can be taken from probelem but put here to simplify code
+	protected int n;  // these can be taken from problem but put here to simplify code
 	protected int d;
-	public boolean use_any_time = true;
+	public boolean use_any_time = true; // TODO : may be this value should pass to the ctor by the main function.
 	
 	// TODO - shouldn't be public
 	public AbstractAgent agents[];

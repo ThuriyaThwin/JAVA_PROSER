@@ -79,7 +79,7 @@ public class AgentSolver {
 
         int max_edge_id = 0;
 		for (int i = 0; i < agents.length; i++) {
-			//graph.addVertex(agents[i]);
+			graph.addVertex(agents[i]);
 			int neighbors[] = agents[i].get_neighbors();
 			for (int j = 0; j <  neighbors.length ; j++) {
 				if (graph.findEdge(agents[i], agents[i]) == null)
@@ -100,8 +100,9 @@ public class AgentSolver {
 			unvisited.add(agents[i]);
 		
 		while (! unvisited.isEmpty()) {
-			BFSTreeCreator<AbstractAgent, Number> bfs_labeler = new BFSTreeCreator<AbstractAgent, Number> ();	
-			bfs_labeler.labelDistances(graph, unvisited.get(0));
+			BFSTreeCreator<AbstractAgent, Number> bfs_labeler = new BFSTreeCreator<AbstractAgent, Number> ();
+			AbstractAgent root = unvisited.get(0);
+			bfs_labeler.labelDistances(graph, root);
 			List<AbstractAgent> visited = bfs_labeler.getVerticesInOrderVisited();			
 		
 			Iterator<AbstractAgent> iter = visited.iterator();
@@ -114,8 +115,10 @@ public class AgentSolver {
 				AbstractAgent parent  = bfs_labeler.getParnt(current);	
 				int current_distance = bfs_labeler.getDistance(graph, current);
 				current.set_bfs_params(current_distance, (tree_height-current_distance));
-				if (parent == null) 
+				if (parent == null) {
 					current.set_bfs_parent(AbstractAgent.NULL);
+					bfs_graph.addVertex(current.id);
+				}
 				else {
 					current.set_bfs_parent(parent.id);
 					parent.add_bfs_child(current.id);

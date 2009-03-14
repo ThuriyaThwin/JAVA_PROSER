@@ -26,8 +26,8 @@ public class Flows {
 	public static void main(String[] args) {
 		//run_queens("DBAAgent", 4, 20000);
 		//run_queens("DSA_A_Agent", 4, 20000);
-	    run_gui_test("DSA_C_Agent", 10, 2000);
-		//run_gui_test("DBAAgent", 10, 200);
+	    //run_gui_test("DSA_C_Agent", 10, 3000);
+		run_gui_test("DBAAgent", 10, 200);
 	    //make_samples();
 		//run_tests();
 		//run_example();
@@ -41,7 +41,8 @@ public class Flows {
         JFrame f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-		Problem problem = new Problem(queens_count);
+		//Problem problem = new Problem(queens_count);
+        Problem problem = new Problem(10, 10, 0.5,0.5);
 		AgentSolver solver = new AgentSolver(problem, AgentAlgorith, cycle_count);
 		solver.solve();
 		

@@ -3,6 +3,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
+
 public abstract class AbstractAgent implements Runnable{
 	protected int id; // the id of current agent
 	protected int[][] weight_table[]; // how much does each conflict cost
@@ -291,7 +292,7 @@ public abstract class AbstractAgent implements Runnable{
 				MessageOKAnyTime2Son parent_message = (MessageOKAnyTime2Son) message;
 				if (parent_message.best_index != best_index) {
 					best_index = parent_message.best_index ;
-					best = val_i[best_index];
+					best = val_i[best_index%val_i_len];
 				}
         	}
         	
@@ -304,5 +305,11 @@ public abstract class AbstractAgent implements Runnable{
 	        	agents_global_table[child_id].ok_message_box.send_message(child_message);
 	        }
         }
+	}
+	
+	public boolean equals(Object other) {
+		AbstractAgent otherVar = (AbstractAgent)  other;
+	      
+	      return (otherVar.id == this.id);
 	}
 }

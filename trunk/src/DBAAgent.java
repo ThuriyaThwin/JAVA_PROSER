@@ -39,7 +39,7 @@ public class DBAAgent extends AbstractAgent {
 		
 	}
 	
-	public void do_alg() {
+	public void do_alg(int cycles) {
 		while (! completed) {
 			dba_send_ok();	
 			if (completed)
@@ -48,7 +48,7 @@ public class DBAAgent extends AbstractAgent {
 			send_improve();
 			wait_improve();
 			
-			if (cycle_count == max_cycles)
+			if (cycle_count == cycles)
 				completed=true;
 		
 			/*
@@ -92,14 +92,14 @@ public class DBAAgent extends AbstractAgent {
 	}
 	
 	private void send_improve() {
-		int current_eval = evalueate(value);
+		int current_eval = dba_evalueate(value);
 		int best_eval = current_eval;
 
 		
 		for (int val = 0 ; val < d ; val++) {
 			if (val == value)
 				continue;
-			int test_eval = evalueate(val);
+			int test_eval = dba_evalueate(val);
 			
 			if (test_eval < best_eval) {
 				best_eval = test_eval;
@@ -148,6 +148,15 @@ public class DBAAgent extends AbstractAgent {
 				consistent = false;
 			}
 		}
+	}
+	
+	protected int dba_evalueate(int current_val) {
+		int eval = 0;
+		for (int i=0; i < no_of_neighbors; i++) {
+			eval += weight_table[i][current_val][agent_view[i]];
+		}
+		
+		return eval;
 	}
 	
 }

@@ -6,8 +6,8 @@ abstract public class DSAAgent extends AbstractAgent {
 	boolean completed=false; // will be set to false when not done
 	int current_conflicts_count;
 	int delta;
-	//  TODO : may be p should be input
-	double p=0.5; // the probability to change the current value
+	double p=0.05; // the probability to change the current value
+
 	boolean is_improve = false;
 	Random rand_generator;
 	int seed = 4;
@@ -41,12 +41,12 @@ abstract public class DSAAgent extends AbstractAgent {
 		delta = current_conflicts_count; 
 	}
 	
-	public void do_alg() {
+	public void do_alg(int cycles) {
 		while (! completed) {
 			//System.out.println("doing cycle");
 			send_ok(); 
 			wait_ok(); 
-			if (cycle_count == (max_cycles-1))
+			if (cycle_count == (cycles-1))
 				completed=true;
 
 	   }
@@ -63,9 +63,9 @@ abstract public class DSAAgent extends AbstractAgent {
 		 * */
 		
 		is_improve = false;
-		int best_value = value;
+		int best_value = -1;
 		int after_read_conflicts_count;
-		int new_conflicts_count = current_conflicts_count;
+		int new_conflicts_count = Integer.MAX_VALUE;
 		
 		for (int val = 0 ; val < d ; val++) {
 			if (val == value)

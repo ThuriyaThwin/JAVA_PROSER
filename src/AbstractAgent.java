@@ -28,7 +28,7 @@ public abstract class AbstractAgent implements Runnable{
 	HashMap<Integer,Integer> neighbor_map; // map index to id
 	HashMap<Integer,Integer> neighbor_id_map; // map id to index
 	
-	protected abstract void do_alg();
+	protected abstract void do_alg(int cycles);
 	
 	// Variables for AnyTime implementation 
 	protected boolean any_time=false;
@@ -116,6 +116,7 @@ public abstract class AbstractAgent implements Runnable{
 	}
 	
 	public void set_bfs_params (int dist, int height) {
+		// TODO
 	    System.out.println("id: " + id + "dist: " + dist + "height" + height);
 		bfs_height = height;
 		bfs_dist = dist;
@@ -158,17 +159,23 @@ public abstract class AbstractAgent implements Runnable{
 	public void any_time_send_ok() {
 		
 		MessageOK message = new MessageOK(id, value);
-		
-	    cost_i[cycle_count%bfs_height] = evalueate(value);
-		val_i[cycle_count%val_i_len] = value;
-		
+
+		System.out.println("value: " + value);
+
 		int cost = Integer.MAX_VALUE;
 		
 		int i = cycle_count - bfs_height;
+		
 		if (i >= 0) {
-			cost = cost_i[i%bfs_height];;
+			cost = cost_i[i%bfs_height];
 		}
 
+		if (id == 0)
+			   System.out.println("next cost base :" +  cost_i[cycle_count%bfs_height]);
+
+		// TODO
+		if (id == 0)
+		   System.out.println("cost:" + cost + " i: " + i + " i%bfs_height " + i%bfs_height + " cycle_count%bfs_height" + cycle_count%bfs_height);
 		MessageOKAnyTime2Parent parent_message = new MessageOKAnyTime2Parent (id, value, cost, i);
 		MessageOKAnyTime2Son child_message = new MessageOKAnyTime2Son(id, value, best_index);
 		
@@ -224,12 +231,16 @@ public abstract class AbstractAgent implements Runnable{
 			else if (bfs_children.contains(message.id)) {
 				MessageOKAnyTime2Parent child_message = (MessageOKAnyTime2Parent) message;
 				//TODO
-				System.out.println("id: " + id + " child id: " + child_message.id + ": i " + i +  " step " + child_message.step_no);
+				//System.out.println("id: " + id + " child id: " + child_message.id + ": i " + i +  " step " + child_message.step_no);
+				System.out.println( " child id: " + child_message.id + " cost: " + child_message.cost_i);
 				if (child_message.step_no >= 0)
 				    cost_i[child_message.step_no%bfs_height] += child_message.cost_i;
 			}
 		}
   
+		
+		val_i[cycle_count%val_i_len] = value;
+	    cost_i[cycle_count%bfs_height] = evalueate(value);
 
 		if (i >= 0) {
 			//root
@@ -246,17 +257,22 @@ public abstract class AbstractAgent implements Runnable{
 	protected int evalueate(int current_val) {
 		int eval = 0;
 		for (int i=0; i < no_of_neighbors; i++) {
-			eval += weight_table[i][current_val][agent_view[i]];
+			if (weight_table[i][current_val][agent_view[i]] > 0)
+			eval += 1;
 		}
 		
 		return eval;
 	}
 	
 	public void run() {
-        do_alg();
+        do_alg(max_cycles + bfs_dist + bfs_height);
         if (any_time) {
            post_alg_steps();
            value = best;
+           System.out.println("-> Best index : " + best_index);
+           if (bfs_parent_id == NULL) 
+        	   System.out.println("-> Best cost: " + best_cost);
+           
         }
         
 	}
@@ -269,6 +285,7 @@ public abstract class AbstractAgent implements Runnable{
 	        	if (message.id != bfs_parent_id) {
 					System.out.println("Bug !!! got a non parent message at post_steps");
 					//System.exit(1);
+					continue;
 	        	}
 	        	
 				MessageOKAnyTime2Son parent_message = (MessageOKAnyTime2Son) message;

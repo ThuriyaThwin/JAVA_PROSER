@@ -1,4 +1,6 @@
 
+import general.Problem;
+
 import com.sosnoski.util.stack.IntStack;
 
 

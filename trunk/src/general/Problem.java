@@ -1,3 +1,4 @@
+package general;
 /* hello world this is a test mark */
 import java.io.*;
 /**

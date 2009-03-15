@@ -1,3 +1,5 @@
+import general.Problem;
+
 
 public class DSA_B_Agent extends DSAAgent{
 	

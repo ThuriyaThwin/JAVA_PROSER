@@ -1,4 +1,6 @@
 
+import general.Problem;
+
 import java.util.Random;
 import com.sosnoski.util.stack.IntStack;
 

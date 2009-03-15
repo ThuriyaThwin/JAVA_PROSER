@@ -1,5 +1,7 @@
 
 
+import general.Problem;
+
 import java.awt.GridLayout;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
@@ -42,7 +44,7 @@ public class Flows {
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
 		//Problem problem = new Problem(queens_count);
-        Problem problem = new Problem(10, 10, 0.5,0.5);
+        Problem problem = new Problem(10, 10, 0.1,0.5);
 		AgentSolver solver = new AgentSolver(problem, AgentAlgorith, cycle_count);
 		solver.solve();
 		

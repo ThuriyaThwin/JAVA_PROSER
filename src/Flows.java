@@ -1,5 +1,6 @@
 
 
+import general.Definitions;
 import general.Problem;
 
 import java.awt.GridLayout;
@@ -8,6 +9,8 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
 import javax.swing.JFrame;
+
+import prosser.FC_Cbj;
 
 
 
@@ -28,13 +31,14 @@ public class Flows {
 	public static void main(String[] args) {
 		//run_queens("DBAAgent", 4, 20000);
 		//run_queens("DSA_A_Agent", 4, 20000);
-	    //run_gui_test("DSA_B_Agent", 10, 3000);
+	    //run_gui_test("DSA_C_Agent", 10, 3000);
 		//run_gui_test("DBAAgent", 10, 200);
 	    //make_samples();
 		//run_tests();
 		//run_example();
 		
-		make_random_samples();
+		//make_random_samples();
+		run_random_tests();
 	}
 	
 	
@@ -49,7 +53,7 @@ public class Flows {
         //Problem problem = new Problem(10, 10, 0.1,0.5);
         problem.save2File("problem_save.prb");
         //Problem problem = new Problem("problem_save.prb");
-		AgentSolver solver = new AgentSolver(problem, AgentAlgorith, cycle_count, 0.3, true);
+		AgentSolver solver = new AgentSolver(problem, AgentAlgorith, cycle_count, 0.1, true);
 		
         f.setLayout(new GridLayout(1,2));
         f.getContentPane().add(solver.get_panel());
@@ -104,8 +108,9 @@ public class Flows {
 		
 	}
 	
-	private static int no_of_random_samples = 1000;
+	private static int no_of_random_samples = 5;
 	private static String random_input_dir = "random_input";
+	private static String random_out_dir = "random_output";
 
 	public static void make_random_samples() {
 			
@@ -125,8 +130,129 @@ public class Flows {
 		}
 	}
 
+	private static double p_min = 0.1;
+	private static double p_max = 0.91;
+	private static double p_jump = 0.05;
+	private static int cycle_count = 10;
+	   
+	public static void run_random_tests() {
+		String agent_class_names[] = {
+			"DSA_A_Agent", "DSA_B_Agent", "DSA_C_Agent", "DSA_D_Agent", 
+			"DSA_E_Agent", "DBAAgent"  	    
+		};
 		
+		int num_of_p = 1 + (int) Math.ceil((p2_max-p2_min)/p2_jump);
+		int num_of_alg = 2*agent_class_names.length;
+	    int conflicts_at_end[][] = new int[num_of_alg][num_of_p]; // need to avrage at end
+	    int failures[][] = new int[num_of_alg][num_of_p]; // when was there a solution but it was not found
+	    int any_time_index[][] =   new int[num_of_alg][num_of_p]; 
+	    int total_messages[][] = new int[num_of_alg][num_of_p]; 
+	    int max_messages[][] = new int[num_of_alg][num_of_p]; 
+	    int ncccs[][] = new int[num_of_alg][num_of_p]; 
+	    int solvable = 0;
+	    
+
+		for (int i = 0; i < no_of_random_samples; i++) {
+			int p_index = 0;
+			for (double p = p_min; p <= p_max; p+= p_jump, p_index++) {
+				String inputFileName = random_input_dir + "/case." + i;
+				// read problem
+				Problem problem = new Problem(inputFileName);
+					
+				// run FC_Cbj;
+				System.out.println("Running FC_Cbj for case case" + i);
+				FC_Cbj solver_FC_Cbj = new FC_Cbj(problem);
+					
+				Definitions.StatOptions fc_cbj_status = solver_FC_Cbj.bcssp();
+					
+				// verify solution
+				if (fc_cbj_status == Definitions.StatOptions.SOLUTION && ! solver_FC_Cbj.check_results()) {
+						System.out.println("Bug !!! FC-CBJ result is wrong");
+						System.exit(1);
+				}
+				
+				if (fc_cbj_status == Definitions.StatOptions.SOLUTION)
+					solvable++;
+					
+					
+				for (int alg_no = 0; alg_no < num_of_alg ; alg_no++) {
+						String alg_name = agent_class_names[alg_no%agent_class_names.length];
+						boolean any_time = false;
+						if (alg_no >= agent_class_names.length)
+							any_time = true;
+						
+						System.out.println("Running " + alg_name + " for case #" + i + " p is " + p + " any time is " + any_time);
+						AgentSolver solver = new AgentSolver(problem, alg_name, cycle_count, p, false);
+						solver.solve();	
+						
+						int conflicts = solver.count_conflicts();
+					    conflicts_at_end[alg_no][p_index] += conflicts;
+					    if ((fc_cbj_status == Definitions.StatOptions.SOLUTION) &&  (conflicts != 0))
+					    		failures[alg_no][p_index]++;
+					    any_time_index[alg_no][p_index] += solver.any_time_max_index;
+					    total_messages[alg_no][p_index] += solver.messages_sent; 
+					    max_messages[alg_no][p_index] += solver.max_messages_sent; 
+					    ncccs[alg_no][p_index] = solver.ncccs;
+				} // end of alg loop
+			} // end of p loop	
+		} // end of i loop (go to next sample)
 	
+		/********************
+         * print reports
+         ********************/ 	
+		File output_dir = new File(random_out_dir);
+		if ((! output_dir.isDirectory()) && (! output_dir.mkdir())) {
+			System.out.println("Error createing dir " + random_out_dir);
+			System.exit(1);
+		}
+
+		String reportName = random_out_dir + "/random_report.csv";
+		PrintStream results; 
+		try {
+			results = new PrintStream(new FileOutputStream(reportName));
+		
+			// Print file header
+			results.print("p,");
+			for (int alg_no = 0; alg_no < num_of_alg ; alg_no++) {
+				String alg_name = agent_class_names[alg_no%agent_class_names.length];
+				boolean any_time = false;
+				if (alg_no >= agent_class_names.length) {
+					any_time = true;
+					alg_name = alg_name + "_any_time";
+				}
+				results.print(alg_name+ "_conflicts_at_end, " );
+				results.print(alg_name+ "_failures, " );
+				results.print(alg_name+ "_any_time_index, " );
+				results.print(alg_name+ "_total_messages, " );
+				results.print(alg_name+ "_max_messages, " );
+				results.print(alg_name+ "_ncccs, " );
+			}
+			results.println();
+			
+			int p_index = 0;
+			for (double p = p_min; p <= p_max; p+= p_jump, p_index++)  {
+				results.print(p + ",");
+				for (int alg_no = 0; alg_no < num_of_alg; alg_no++) {   		    	    
+	    		    	    results.print(conflicts_at_end[alg_no][p_index]/no_of_random_samples+ ",");
+	    		    	    results.print(failures[alg_no][p_index]+ ",");
+	    		    	    results.print(any_time_index[alg_no][p_index]/no_of_random_samples+ ",");
+	    		    	    results.print(total_messages[alg_no][p_index]/no_of_random_samples+ ",");
+	    		    	    results.print(max_messages[alg_no][p_index]/no_of_random_samples+ ",");
+	    		    	    results.print(ncccs[alg_no][p_index]/no_of_random_samples+ ",");
+	    		    	    
+				}
+			    		results.println();
+			}
+	
+			
+		    } // end loop over p
+		catch (Exception e) {
+			System.out.println("problem with file " + reportName);
+			e.printStackTrace();
+			System.exit(1);
+		}	
+}
+
 	
 	// make sure directory input exists before running
 	/*

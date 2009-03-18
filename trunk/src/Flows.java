@@ -6,7 +6,6 @@ import java.awt.GridLayout;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
-
 import javax.swing.JFrame;
 
 
@@ -44,8 +43,18 @@ public class Flows {
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
 		//Problem problem = new Problem(queens_count);
-        Problem problem = new Problem(10, 10, 0.1,0.5);
-		AgentSolver solver = new AgentSolver(problem, AgentAlgorith, cycle_count);
+        //Problem problem = new Problem(10, 10, 0.1,0.5);
+        //problem.save2File("problem_save.prb");
+        Problem problem = new Problem("problem_save.prb");
+		AgentSolver solver = new AgentSolver(problem, AgentAlgorith, cycle_count, 0.3, true);
+		
+        f.setLayout(new GridLayout(1,2));
+        f.getContentPane().add(solver.get_panel());
+        if (solver.use_any_time)
+            f.getContentPane().add(solver.get_bfs_panel());
+        f.pack();
+        f.setVisible(true);
+        
 		solver.solve();
 		
         f.setLayout(new GridLayout(1,2));
@@ -300,7 +309,7 @@ public class Flows {
 		long start = System.currentTimeMillis();
 
 		Problem problem = new Problem(queens_count);
-		AgentSolver solver = new AgentSolver(problem, AgentAlgorith, cycle_count);
+		AgentSolver solver = new AgentSolver(problem, AgentAlgorith, cycle_count, 0.2, true);
 		solver.solve();
 		
         // TODO - need to check if there is a solution 

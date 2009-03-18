@@ -16,8 +16,8 @@ public abstract class AbstractAgent implements Runnable{
 	protected int value;   
 	protected int cycle_count;    // what cycle was reached?
 	protected int max_cycles;    // after how many cycles to terminate if solution not found?
-	protected int messages_sent;  // how many messages did current agent send
-	protected int ncccs;          // What is the NCCCS of current agent
+	public int messages_sent;  // how many messages did current agent send
+	public int ncccs;          // What is the NCCCS of current agent
 	protected Problem problem;
 	protected double p; // the probability to change the current value is actualy used only by DSA
 						// but we are setting it in all agents in order to enable common interface 
@@ -43,7 +43,7 @@ public abstract class AbstractAgent implements Runnable{
 	private int bfs_height;
 	private int bfs_dist;
 	private int best = NULL;
-	private int best_index = NULL;
+	public  int best_index = NULL;
 	private int best_cost = Integer.MAX_VALUE; // this is used only by root
 	private int current_step = 0;
 	private int cost_i[]; // this cost of steps history
@@ -160,6 +160,7 @@ public abstract class AbstractAgent implements Runnable{
 			for (int i = 0 ; i < no_of_neighbors; i++) {
 			    int neighbor_id = neighbor_map.get(i);
 			    agents_global_table[neighbor_id].ok_message_box.send_message(message);
+			    messages_sent++;
 			}
 		}
 	}
@@ -199,6 +200,7 @@ public abstract class AbstractAgent implements Runnable{
 		    else {
 		    	agents_global_table[neighbor_id].ok_message_box.send_message(message);
 		    }
+		    messages_sent++;
 
 		}
 		
@@ -319,6 +321,7 @@ public abstract class AbstractAgent implements Runnable{
 	        while (iter.hasNext()) {
 	        	int child_id = iter.next().intValue();
 	        	agents_global_table[child_id].ok_message_box.send_message(child_message);
+	        	messages_sent++;
 	        }
         }
 	}

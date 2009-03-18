@@ -37,8 +37,8 @@ public class Flows {
 		//run_tests();
 		//run_example();
 		
-		//make_random_samples();
-		run_random_tests();
+		//make_random_samples(1000);
+		run_random_tests(5);
 	}
 	
 	
@@ -108,11 +108,12 @@ public class Flows {
 		
 	}
 	
-	private static int no_of_random_samples = 5;
+
 	private static String random_input_dir = "random_input";
 	private static String random_out_dir = "random_output";
 
-	public static void make_random_samples() {
+	public static void make_random_samples(int no_of_random_samples) {
+
 			
 		File input_dir = new File(random_input_dir);
 		if ((! input_dir.isDirectory()) && (! input_dir.mkdir())) {
@@ -135,7 +136,7 @@ public class Flows {
 	private static double p_jump = 0.05;
 	private static int cycle_count = 10;
 	   
-	public static void run_random_tests() {
+	public static void run_random_tests(int no_of_random_samples) {
 		String agent_class_names[] = {
 			"DSA_A_Agent", "DSA_B_Agent", "DSA_C_Agent", "DSA_D_Agent", 
 			"DSA_E_Agent", "DBAAgent"  	    

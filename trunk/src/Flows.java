@@ -37,7 +37,7 @@ public class Flows {
 		//run_tests();
 		//run_example();
 		
-		//make_random_samples(1000);
+		make_random_samples(1000);
 		run_random_tests(5);
 	}
 	

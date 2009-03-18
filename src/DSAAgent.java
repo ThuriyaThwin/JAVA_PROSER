@@ -8,14 +8,13 @@ abstract public class DSAAgent extends AbstractAgent {
 	boolean completed=false; // will be set to false when not done
 	int current_conflicts_count;
 	int delta;
-	double p=0.05; // the probability to change the current value
 
 	boolean is_improve = false;
 	Random rand_generator;
 	int seed = 4;
 	
-	public DSAAgent(int id, Problem problem, int max_cycles,  AbstractAgent agents_table[], boolean any_time) {
-		super(id, problem, max_cycles, (AbstractAgent[]) agents_table, any_time);
+	public DSAAgent(int id, Problem problem, int max_cycles,  AbstractAgent agents_table[], double p, boolean any_time) {
+		super(id, problem, max_cycles, (AbstractAgent[]) agents_table, p, any_time);
 
 		this.agents_global_table =  agents_table;
 		weight_table = new int [no_of_neighbors][][];

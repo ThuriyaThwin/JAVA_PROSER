@@ -26,11 +26,10 @@ public class AgentSolver {
     protected int v[]; // the ordered array with all solution
 	protected int n;  // these can be taken from problem but put here to simplify code
 	protected int d;
-	public boolean use_any_time = true; // TODO : may be this value should pass to the ctor by the main function.
+	protected boolean use_any_time; // should anytime be used?
 	
 	// TODO - shouldn't be public
 	public AbstractAgent agents[];
-	
 	
     /**
      * the graph will be used for display
@@ -46,8 +45,9 @@ public class AgentSolver {
 	 * @param problem
 	 */
  
-	public AgentSolver(Problem problem, String agentType, int max_cycles) {
+	public AgentSolver(Problem problem, String agentType, int max_cycles, double p, boolean any_time) {
 		this.problem = problem;
+		use_any_time = any_time;
 		n = problem.getN();
 		d = problem.getD();
 		v = new int[n];
@@ -59,7 +59,7 @@ public class AgentSolver {
 				Class cls =  Class.forName(agentType);	    
 			    Constructor ct[] = cls.getDeclaredConstructors();
 			    //agents[i] = new DBAAgent(i, problem, max_cycles, agents);
-			    agents[i] = (AbstractAgent) ct[0].newInstance(i, problem, max_cycles, agents, use_any_time);
+			    agents[i] = (AbstractAgent) ct[0].newInstance(i, problem, max_cycles, agents, p, use_any_time);
 		    }
 		    catch (Throwable e) {
 		      System.err.println(e);
@@ -83,8 +83,9 @@ public class AgentSolver {
 			graph.addVertex(agents[i]);
 			int neighbors[] = agents[i].get_neighbors();
 			for (int j = 0; j <  neighbors.length ; j++) {
-				if (graph.findEdge(agents[i], agents[i]) == null)
-				   graph.addEdge(max_edge_id++, agents[i], agents[j]);
+				int neighbor_id = neighbors[j];
+				if (graph.findEdge(agents[i], agents[neighbor_id]) == null)
+				   graph.addEdge(max_edge_id++, agents[i], agents[neighbor_id]);
 			}
 		}
 		
@@ -207,13 +208,31 @@ public class AgentSolver {
 			for (int j = i+1; j < problem.getN(); j++) {
 				if (! problem.check(i, v[i], j, v[j])) {
 					status=false;
-					System.out.println("Conflict ===> "+ i + ", " + j);
+					// TODO remove line below
+					// System.out.println("Conflict ===> "+ i + ", " + j);
+					return false;
 				}
 		    	   
 			}
 		}
 		
 		return status;
+	}
+	
+	// check that the results that are currently in v satisfy the constraints in problem
+	public int count_conflicts() {
+		int conflicts = 0;
+		boolean status = true;
+		for (int i = 0; i < problem.getN(); i++) {
+			for (int j = i+1; j < problem.getN(); j++) {
+				if (! problem.check(i, v[i], j, v[j])) {
+					conflicts++;
+				}
+		    	   
+			}
+		}
+		
+		return conflicts;
 	}
 	
 }

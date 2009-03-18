@@ -19,6 +19,8 @@ public abstract class AbstractAgent implements Runnable{
 	protected int messages_sent;  // how many messages did current agent send
 	protected int ncccs;          // What is the NCCCS of current agent
 	protected Problem problem;
+	protected double p; // the probability to change the current value is actualy used only by DSA
+						// but we are setting it in all agents in order to enable common interface 
 	protected int no_of_neighbors; // for fast looping over all neighbors
 	AbstractAgent agents_global_table[];
 	MessageBox<MessageOK> ok_message_box; 
@@ -48,7 +50,7 @@ public abstract class AbstractAgent implements Runnable{
 	private int val_i[]; // the value history
 	private int val_i_len;
 
-	public AbstractAgent(int id, Problem problem, int max_cycles, AbstractAgent agents_table[], boolean any_time) {
+	public AbstractAgent(int id, Problem problem, int max_cycles, AbstractAgent agents_table[], double p, boolean any_time) {
 		d = problem.getD();
 		n = problem.getN();
 		this.max_cycles = max_cycles;
@@ -57,12 +59,12 @@ public abstract class AbstractAgent implements Runnable{
 		termination_counter = 0;
 		consistent = false;
 		this.any_time = any_time;
-		
-		
-		
+		this.p = p;
+
 		//create map to idenitfy where in agent_view will agent's value be found
 		neighbor_map = new HashMap<Integer, Integer>();
 		neighbor_id_map = new HashMap<Integer, Integer>();
+		
 		no_of_neighbors = 0;
 		for (int i = 0; i < n; i++) {
 			if (i == id) {
@@ -85,11 +87,14 @@ public abstract class AbstractAgent implements Runnable{
 	
 	
 	public int[] get_neighbors() {
-		Object [] neighbors = neighbor_id_map.keySet().toArray();
-		int[] result = new int[neighbors.length]; 
+		if (no_of_neighbors == 0)
+			return new int[0];
+
+		int[] result = new int[no_of_neighbors]; 
 		
-		for (int i = 0; i < neighbors.length; i++)
-			result[i] = (Integer) neighbors[i];
+		for (int i = 0; i < no_of_neighbors; i++) {
+			result[i] = neighbor_map.get(i).intValue();
+		}
 		
 		return result;
 		
@@ -120,7 +125,7 @@ public abstract class AbstractAgent implements Runnable{
 	
 	public void set_bfs_params (int dist, int height) {
 		// TODO
-	    System.out.println("id: " + id + "dist: " + dist + "height" + height);
+	    //System.out.println("id: " + id + "dist: " + dist + "height" + height);
 		bfs_height = height;
 		bfs_dist = dist;
 
@@ -162,8 +167,8 @@ public abstract class AbstractAgent implements Runnable{
 	public void any_time_send_ok() {
 		
 		MessageOK message = new MessageOK(id, value);
-
-		System.out.println("value: " + value);
+		//TODO
+		//System.out.println("value: " + value);
 
 		int cost = Integer.MAX_VALUE;
 		
@@ -173,12 +178,13 @@ public abstract class AbstractAgent implements Runnable{
 			cost = cost_i[i%bfs_height];
 		}
 
-		if (id == 0)
-			   System.out.println("next cost base :" +  cost_i[cycle_count%bfs_height]);
+		// TODO
+		//if (id == 0)
+		//	   System.out.println("next cost base :" +  cost_i[cycle_count%bfs_height]);
 
 		// TODO
-		if (id == 0)
-		   System.out.println("cost:" + cost + " i: " + i + " i%bfs_height " + i%bfs_height + " cycle_count%bfs_height" + cycle_count%bfs_height);
+		//if (id == 0)
+		//   System.out.println("cost:" + cost + " i: " + i + " i%bfs_height " + i%bfs_height + " cycle_count%bfs_height" + cycle_count%bfs_height);
 		MessageOKAnyTime2Parent parent_message = new MessageOKAnyTime2Parent (id, value, cost, i);
 		MessageOKAnyTime2Son child_message = new MessageOKAnyTime2Son(id, value, best_index);
 		
@@ -219,7 +225,9 @@ public abstract class AbstractAgent implements Runnable{
 		
 		for(int counter = 0; counter < no_of_neighbors; counter++) {
 			MessageOK message = ok_message_box.read_message();
-			int neighbor_index = neighbor_id_map.get(message.id);
+			int neighbor_id = message.id;
+
+			int neighbor_index = neighbor_id_map.get(neighbor_id);
 			
 			agent_view[neighbor_index] = message.current_value;
 			
@@ -235,7 +243,7 @@ public abstract class AbstractAgent implements Runnable{
 				MessageOKAnyTime2Parent child_message = (MessageOKAnyTime2Parent) message;
 				//TODO
 				//System.out.println("id: " + id + " child id: " + child_message.id + ": i " + i +  " step " + child_message.step_no);
-				System.out.println( " child id: " + child_message.id + " cost: " + child_message.cost_i);
+				//System.out.println( " child id: " + child_message.id + " cost: " + child_message.cost_i);
 				if (child_message.step_no >= 0)
 				    cost_i[child_message.step_no%bfs_height] += child_message.cost_i;
 			}
@@ -268,14 +276,20 @@ public abstract class AbstractAgent implements Runnable{
 	}
 	
 	public void run() {
-        do_alg(max_cycles + bfs_dist + bfs_height);
-        if (any_time) {
-           post_alg_steps();
-           value = best;
-           System.out.println("-> Best index : " + best_index);
-           if (bfs_parent_id == NULL) 
-        	   System.out.println("-> Best cost: " + best_cost);
-           
+		// if there are no conflicts then the first value can be selected and nothing needs to be checked
+		if (no_of_neighbors == 0) {
+			value = 0;	
+			System.out.println("-> no neighbors for id: " + id);
+		}
+		else {
+	        do_alg(max_cycles + bfs_dist + bfs_height);
+	        if (any_time) {
+	           post_alg_steps();
+	           value = best;
+	           System.out.println("-> id: " + id + "-> Best index : " + best_index);
+	           if (bfs_parent_id == NULL) 
+	        	   System.out.println("---> Best cost: " + best_cost);
+	        }   
         }
         
 	}

@@ -28,6 +28,13 @@ public class AgentSolver {
 	protected int d;
 	protected boolean use_any_time; // should anytime be used?
 	
+	
+	// Result data collcected from childern
+	public int any_time_max_index;
+	public int messages_sent;
+	public int max_messages_sent;
+	public int ncccs;
+	
 	// TODO - shouldn't be public
 	public AbstractAgent agents[];
 	
@@ -168,15 +175,13 @@ public class AgentSolver {
         // setup values		
 		for (int i = 0; i < n; i++) {
 			v[i] = agents[i].value;
+			any_time_max_index = Math.max(any_time_max_index, agents[i].best_index); 
+			messages_sent += agents[i].messages_sent;
+			max_messages_sent = Math.max(max_messages_sent, agents[i].messages_sent);
+			ncccs = Math.max(ncccs,agents[i].ncccs);
 		}	
 		
-		if (check_results()) {
-			System.out.println("results ok");
-		}
-		else
-		{
-			System.out.println("results wrong");
-		}
+
 	}
 	
 

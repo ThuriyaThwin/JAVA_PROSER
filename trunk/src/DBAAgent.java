@@ -127,6 +127,7 @@ public class DBAAgent extends AbstractAgent {
 		for (int i = 0 ; i < no_of_neighbors; i++) {
 		    int neighbor_id = neighbor_map.get(i);
 		    ((DBAAgent)agents_global_table[neighbor_id]).improve_message_box.send_message(message);
+		    messages_sent++;
 		}
 	}
 	

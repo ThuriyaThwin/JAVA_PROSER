@@ -3,6 +3,7 @@
 import general.Problem;
 
 import java.awt.GridLayout;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
@@ -27,11 +28,13 @@ public class Flows {
 	public static void main(String[] args) {
 		//run_queens("DBAAgent", 4, 20000);
 		//run_queens("DSA_A_Agent", 4, 20000);
-	    //run_gui_test("DSA_C_Agent", 10, 3000);
-		run_gui_test("DBAAgent", 10, 200);
+	    //run_gui_test("DSA_B_Agent", 10, 3000);
+		//run_gui_test("DBAAgent", 10, 200);
 	    //make_samples();
 		//run_tests();
 		//run_example();
+		
+		make_random_samples();
 	}
 	
 	
@@ -42,10 +45,10 @@ public class Flows {
         JFrame f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-		//Problem problem = new Problem(queens_count);
+		Problem problem = new Problem(queens_count);
         //Problem problem = new Problem(10, 10, 0.1,0.5);
-        //problem.save2File("problem_save.prb");
-        Problem problem = new Problem("problem_save.prb");
+        problem.save2File("problem_save.prb");
+        //Problem problem = new Problem("problem_save.prb");
 		AgentSolver solver = new AgentSolver(problem, AgentAlgorith, cycle_count, 0.3, true);
 		
         f.setLayout(new GridLayout(1,2));
@@ -65,7 +68,9 @@ public class Flows {
         f.setVisible(true);
         
 
-        // TODO - need to check if there is a solution 
+        if (solver.check_results()) {
+        	System.out.println("result ok");
+        }
 	    solver.printV(System.out);
 
     }
@@ -98,6 +103,29 @@ public class Flows {
 		}
 		
 	}
+	
+	private static int no_of_random_samples = 1000;
+	private static String random_input_dir = "random_input";
+
+	public static void make_random_samples() {
+			
+		File input_dir = new File(random_input_dir);
+		if ((! input_dir.isDirectory()) && (! input_dir.mkdir())) {
+			System.out.println("Error createing dir " + random_input_dir);
+			System.exit(1);
+		}
+		
+		for (int i = 0; i < no_of_random_samples; i++) {
+			String fileName = random_input_dir + "/case." + i;
+			double p1 = Math.random();
+			double p2 = Math.random();
+			System.out.println("creating " + fileName);
+			Problem problem = new Problem(15, 10, p1,p2);
+			problem.save2File(fileName);
+		}
+	}
+
+		
 	
 	
 	// make sure directory input exists before running

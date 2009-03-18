@@ -72,7 +72,7 @@ abstract public class DSAAgent extends AbstractAgent {
 			if (val == value)
 				continue;
 			after_read_conflicts_count = evalueate(val);
-			System.out.println("current_conflicts_count = " + current_conflicts_count);
+			//TODO System.out.println("current_conflicts_count = " + current_conflicts_count);
 			if (after_read_conflicts_count < new_conflicts_count) {
 				is_improve = true;	
 				delta = current_conflicts_count - after_read_conflicts_count;

@@ -16,6 +16,9 @@ public class Problem implements Serializable {
 
 	private int n;  // number of variable in problem
 	private int d;  // size of domain 
+	private double p1;
+	private double p2;
+	
 	public int constraint_checks;  // number of constrain checks done
 	                               // is incremented when check is called
 	                               // when get_conflicts* functions are called
@@ -37,8 +40,8 @@ public class Problem implements Serializable {
 	
 	// create an instance of a problem with n variables and domain size d
     public Problem(int n, int d, double p1, double p2) {
-    	
-       init(n,d);
+    
+       init(n,d,p1,p2);
     	
     	for (int v1 = 0; v1 < n; v1++) {
     		constraints[v1][v1] = null;
@@ -146,9 +149,11 @@ public class Problem implements Serializable {
     }
     
     // this is common to all the constructors 
-	private void init(int n, int d) {
+	private void init(int n, int d, double p1, double p2) {
 	  	this.n = n;
     	this.d = d;
+    	this.p1 = p1;
+    	this.p2 = p2;
     	
     	constraint_checks = 0;
     	constraints = new boolean[n][n][][];

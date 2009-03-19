@@ -13,6 +13,11 @@ import javax.swing.JFrame;
 import prosser.FC_Cbj;
 
 
+import java.util.Date;
+import jxl.*;
+import jxl.write.*;
+import jxl.write.Number;
+
 
 /************************************************************************************
 This class contains the main running flows
@@ -37,8 +42,8 @@ public class Flows {
 		//run_tests();
 		//run_example();
 		
-		make_random_samples(1000);
-		run_random_tests(5);
+		make_random_samples(2);
+		run_random_tests(2);
 	}
 	
 	
@@ -151,14 +156,14 @@ public class Flows {
 	    int max_messages[][] = new int[num_of_alg][num_of_p]; 
 	    int ncccs[][] = new int[num_of_alg][num_of_p]; 
 	    int solvable = 0;
-	    
+	    Problem problem = new Problem(0,0,0,0);
 
 		for (int i = 0; i < no_of_random_samples; i++) {
 			int p_index = 0;
 			for (double p = p_min; p <= p_max; p+= p_jump, p_index++) {
 				String inputFileName = random_input_dir + "/case." + i;
 				// read problem
-				Problem problem = new Problem(inputFileName);
+				problem = new Problem(inputFileName);
 					
 				// run FC_Cbj;
 				System.out.println("Running FC_Cbj for case case" + i);
@@ -200,7 +205,77 @@ public class Flows {
 	
 		/********************
          * print reports
-         ********************/ 	
+         ********************/ 
+		/* elad start */
+		
+		String reportFileName = random_out_dir + "/random_report" +  "_N#-" + problem.getN() + "_D#-" + problem.getD() + ".xls";
+
+		String cell_headers[] = {
+				"EMPTY",
+				"conflicts_at_end",
+				"failures",
+				"any_time_index",
+				"total_messages", 
+				"max_messages",
+				"ncccs"  	    
+			};
+		try{
+			// create the xls file
+			WritableWorkbook workbook = Workbook.createWorkbook(new File(reportFileName));
+			
+			
+			int x=0,y=0, sheet_no=0;
+			WritableSheet sheet;
+			Label label;
+			int p_index = 0;
+			
+			for (int alg_no = 0; alg_no < num_of_alg ; alg_no++) {
+				String alg_name = agent_class_names[alg_no%agent_class_names.length];
+				boolean any_time = false;
+				if (alg_no >= agent_class_names.length) {
+					any_time = true;
+					alg_name = alg_name + "_any_time";
+				}
+				
+				sheet = workbook.createSheet(alg_name, sheet_no++);
+				x=0;
+				y=0;
+				p_index = 0;
+				label = new Label(x, y, "p");
+				sheet.addCell(label);
+				
+				for (int i=1;i< cell_headers.length;i++){
+					label = new Label(i, y, cell_headers[i]);
+					sheet.addCell(label);
+				}
+				
+				
+				for (double p = p_min; p <= p_max; p+= p_jump, p_index++)  {
+					Number number = new Number(x,++y,p);
+					sheet.addCell(number);
+					
+				sheet.addCell(new Number(x+1,y,conflicts_at_end[alg_no][p_index]/no_of_random_samples));
+				sheet.addCell(new Number(x+2,y,failures[alg_no][p_index]));
+				sheet.addCell(new Number(x+3,y,any_time_index[alg_no][p_index]/no_of_random_samples));
+				sheet.addCell(new Number(x+4,y,total_messages[alg_no][p_index]/no_of_random_samples));
+				sheet.addCell(new Number(x+5,y,max_messages[alg_no][p_index]/no_of_random_samples));
+				sheet.addCell(new Number(x+6,y,ncccs[alg_no][p_index]/no_of_random_samples));
+				}	
+					
+			workbook.write();
+			workbook.close();
+			}
+		}
+		catch (Exception e) {
+			System.out.println("problem with file excel api" );
+			e.printStackTrace();
+			//System.exit(1);
+		}	
+		/* elad end */
+		
+		
+		
+		
 		File output_dir = new File(random_out_dir);
 		if ((! output_dir.isDirectory()) && (! output_dir.mkdir())) {
 			System.out.println("Error createing dir " + random_out_dir);
@@ -243,10 +318,10 @@ public class Flows {
 	    		    	    
 				}
 			    		results.println();
-			}
+			} // end loop over p
 	
 			
-		    } // end loop over p
+		    } 
 		catch (Exception e) {
 			System.out.println("problem with file " + reportName);
 			e.printStackTrace();

@@ -67,7 +67,8 @@ public class DBAAgent extends AbstractAgent {
 		if (consistent) {
 			termination_counter++;
 			if (termination_counter >= n) {
-				// TODO: notify all neighbor that solution was found
+				// We don't need to notify all neighbors that solution was find since their termination counter is the same 
+				// as ours (if it is not on of us will change value
 				completed = true;
 				return;
 			}
@@ -97,6 +98,13 @@ public class DBAAgent extends AbstractAgent {
 		int current_eval = dba_evalueate(value);
 		int best_eval = current_eval;
 
+		if (current_eval != 0) {
+			termination_counter = 0;
+			consistent = false;
+		}
+		else
+			consistent = true;
+		
 		
 		for (int val = 0 ; val < d ; val++) {
 			if (val == value)
@@ -156,7 +164,9 @@ public class DBAAgent extends AbstractAgent {
 	protected int dba_evalueate(int current_val) {
 		int eval = 0;
 		for (int i=0; i < no_of_neighbors; i++) {
-			eval += weight_table[i][current_val][agent_view[i]];
+			ncccs++;
+			int e = weight_table[i][current_val][agent_view[i]];
+			eval += e;
 		}
 		
 		return eval;

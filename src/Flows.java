@@ -37,13 +37,13 @@ public class Flows {
 		//run_queens("DBAAgent", 4, 20000);
 		//run_queens("DSA_A_Agent", 4, 20000);
 	    //run_gui_test("DSA_C_Agent", 10, 3000);
-		//run_gui_test("DBAAgent", 10, 200);
+		//run_gui_test("DBAAgent", 4, 12);
 	    //make_samples();
 		//run_tests();
 		//run_example();
 		
-		make_random_samples(2);
-		run_random_tests(2);
+		//make_random_samples();
+		run_random_tests(1, 1000);
 	}
 	
 	
@@ -58,7 +58,7 @@ public class Flows {
         //Problem problem = new Problem(10, 10, 0.1,0.5);
         problem.save2File("problem_save.prb");
         //Problem problem = new Problem("problem_save.prb");
-		AgentSolver solver = new AgentSolver(problem, AgentAlgorith, cycle_count, 0.1, true);
+		AgentSolver solver = new AgentSolver(problem, AgentAlgorith, cycle_count, 0.1, false);
 		
         f.setLayout(new GridLayout(1,2));
         f.getContentPane().add(solver.get_panel());
@@ -76,7 +76,7 @@ public class Flows {
         f.pack();
         f.setVisible(true);
         
-
+    	System.out.println("ncccs = " + solver.ncccs);
         if (solver.check_results()) {
         	System.out.println("result ok");
         }
@@ -139,9 +139,8 @@ public class Flows {
 	private static double p_min = 0.1;
 	private static double p_max = 0.91;
 	private static double p_jump = 0.05;
-	private static int cycle_count = 10;
 	   
-	public static void run_random_tests(int no_of_random_samples) {
+	public static void run_random_tests(int no_of_random_samples,  int cycle_count) {
 		String agent_class_names[] = {
 			"DSA_A_Agent", "DSA_B_Agent", "DSA_C_Agent", "DSA_D_Agent", 
 			"DSA_E_Agent", "DBAAgent"  	    
@@ -156,6 +155,7 @@ public class Flows {
 	    int max_messages[][] = new int[num_of_alg][num_of_p]; 
 	    int ncccs[][] = new int[num_of_alg][num_of_p]; 
 	    int solvable = 0;
+	    //TODO
 	    Problem problem = new Problem(0,0,0,0);
 
 		for (int i = 0; i < no_of_random_samples; i++) {
@@ -223,7 +223,7 @@ public class Flows {
 			// create the xls file
 			WritableWorkbook workbook = Workbook.createWorkbook(new File(reportFileName));
 			
-			
+		
 			int x=0,y=0, sheet_no=0;
 			WritableSheet sheet;
 			Label label;
@@ -261,21 +261,105 @@ public class Flows {
 				sheet.addCell(new Number(x+5,y,max_messages[alg_no][p_index]/no_of_random_samples));
 				sheet.addCell(new Number(x+6,y,ncccs[alg_no][p_index]/no_of_random_samples));
 				}	
-					
+				
+			}
 			workbook.write();
 			workbook.close();
-			}
 		}
 		catch (Exception e) {
-			System.out.println("problem with file excel api" );
+			System.out.println("problem with file excel api" + reportFileName );
 			e.printStackTrace();
 			//System.exit(1);
 		}	
 		/* elad end */
 		
 		
+	   //TODO Miriam Start 	
+		
+		String measure_names[] = {
+				"conflicts_at_end",
+				"failures",
+				"any_time_index",
+				"total_messages", 
+				"max_messages",
+				"ncccs"  	    
+			};
 		
 		
+		int [][] measure_arrays[] = {
+				conflicts_at_end,
+				failures,
+				any_time_index,
+				total_messages,
+				max_messages,
+				ncccs
+		};
+		
+		WritableSheet sheet;
+		
+		reportFileName = random_out_dir + "/random_report" +  "_N#" + problem.getN() + "_D#" + problem.getD() + ".xls";
+
+		try{
+			// create the xls file
+			WritableWorkbook workbook = Workbook.createWorkbook(new File(reportFileName));
+			
+
+			
+			int sheet_no=0;
+			
+			
+			for (int m=0; m < measure_arrays.length; m++) {
+				sheet = workbook.createSheet(measure_names[m], sheet_no++);
+				Label label =  new Label(0, 0, "p");
+				sheet.addCell(label);
+				
+				for (int alg_no = 0; alg_no < num_of_alg ; alg_no++) {
+					String alg_name = agent_class_names[alg_no%agent_class_names.length];
+					boolean any_time = false;
+					if (alg_no >= agent_class_names.length) {
+						any_time = true;
+						alg_name = alg_name + "_any_time";
+					}
+					
+				    label = new Label(alg_no+1, 0, alg_name);
+					sheet.addCell(label);
+				}
+			
+			    int p_index = 0;
+				for (double p = p_min; p <= p_max; p+= p_jump, p_index++)  {
+					Number number = new Number(0,p_index+1,p);
+					sheet.addCell(number);
+				
+					for (int alg_no = 0; alg_no < num_of_alg ; alg_no++) {
+						String alg_name = agent_class_names[alg_no%agent_class_names.length];
+						boolean any_time = false;
+						if (alg_no >= agent_class_names.length) {
+							any_time = true;
+							alg_name = alg_name + "_any_time";
+						}
+				
+					if (measure_names[m].equals("failures")) {
+						number = new Number(alg_no+1, p_index+1, failures[alg_no][p_index]);
+					}
+					else {
+						number = new Number(alg_no+1, p_index+1, measure_arrays[m][alg_no][p_index]/no_of_random_samples);
+					}
+					
+					sheet.addCell(number);
+					}
+				}
+			}	
+				
+			workbook.write();
+			workbook.close();
+		}
+		catch (Exception e) {
+			System.out.println("problem with file excel api" + reportFileName );
+			e.printStackTrace();
+			//System.exit(1);
+		}
+		
+		// TODO Miriam end
 		File output_dir = new File(random_out_dir);
 		if ((! output_dir.isDirectory()) && (! output_dir.mkdir())) {
 			System.out.println("Error createing dir " + random_out_dir);

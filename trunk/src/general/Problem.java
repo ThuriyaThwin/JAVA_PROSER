@@ -41,7 +41,7 @@ public class Problem implements Serializable {
 	// create an instance of a problem with n variables and domain size d
     public Problem(int n, int d, double p1, double p2) {
     
-       init(n,d,p1,p2);
+       init(n,d);
     	
     	for (int v1 = 0; v1 < n; v1++) {
     		constraints[v1][v1] = null;
@@ -149,11 +149,9 @@ public class Problem implements Serializable {
     }
     
     // this is common to all the constructors 
-	private void init(int n, int d, double p1, double p2) {
+	private void init(int n, int d) {
 	  	this.n = n;
     	this.d = d;
-    	this.p1 = p1;
-    	this.p2 = p2;
     	
     	constraint_checks = 0;
     	constraints = new boolean[n][n][][];

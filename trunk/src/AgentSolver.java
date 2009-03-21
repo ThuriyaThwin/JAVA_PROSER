@@ -96,8 +96,6 @@ public class AgentSolver {
 			}
 		}
 		
-		System.out.println("===> Graph vertex count:" + graph.getVertexCount());
-		
 		graph_panel = new GraphPanel<AbstractAgent, Number>(graph);
 	}
 	
@@ -213,8 +211,6 @@ public class AgentSolver {
 			for (int j = i+1; j < problem.getN(); j++) {
 				if (! problem.check(i, v[i], j, v[j])) {
 					status=false;
-					// TODO remove line below
-					// System.out.println("Conflict ===> "+ i + ", " + j);
 					return false;
 				}
 		    	   

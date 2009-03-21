@@ -14,5 +14,6 @@
 	<classpathentry kind="lib" path="jar/jung-io-2.0-beta1.jar"/>
 	<classpathentry kind="lib" path="jar/jung-jai-2.0-beta1.jar"/>
 	<classpathentry kind="lib" path="jar/jung-visualization-2.0-beta1.jar"/>
+	<classpathentry kind="lib" path="jar/jxl.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -36,14 +36,14 @@ public class Flows {
 	public static void main(String[] args) {
 		//run_queens("DBAAgent", 4, 20000);
 		//run_queens("DSA_A_Agent", 4, 20000);
-	    //run_gui_test("DSA_C_Agent", 10, 3000);
-		//run_gui_test("DBAAgent", 4, 12);
+	    run_gui_test("DSA_B_Agent", 7, 1000);
+		//run_gui_test("DBAAgent", 10, 100);
 	    //make_samples();
 		//run_tests();
 		//run_example();
 		
 		//make_random_samples();
-		run_random_tests(1, 1000);
+		//run_random_tests(1, 1000);
 	}
 	
 	
@@ -58,7 +58,7 @@ public class Flows {
         //Problem problem = new Problem(10, 10, 0.1,0.5);
         problem.save2File("problem_save.prb");
         //Problem problem = new Problem("problem_save.prb");
-		AgentSolver solver = new AgentSolver(problem, AgentAlgorith, cycle_count, 0.1, false);
+		AgentSolver solver = new AgentSolver(problem, AgentAlgorith, cycle_count, 0.1, true);
 		
         f.setLayout(new GridLayout(1,2));
         f.getContentPane().add(solver.get_panel());
@@ -79,6 +79,9 @@ public class Flows {
     	System.out.println("ncccs = " + solver.ncccs);
         if (solver.check_results()) {
         	System.out.println("result ok");
+        }
+        else {
+        	System.out.println("number of conflicts is : " + solver.count_conflicts());
         }
 	    solver.printV(System.out);
 

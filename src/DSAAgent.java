@@ -13,28 +13,11 @@ abstract public class DSAAgent extends AbstractAgent {
 	Random rand_generator;
 	int seed = 4;
 	
-	public DSAAgent(int id, Problem problem, int max_cycles,  AbstractAgent agents_table[], double p, boolean any_time) {
-		super(id, problem, max_cycles, (AbstractAgent[]) agents_table, p, any_time);
+	public DSAAgent(int id, Problem problem, int max_cycles,  double p, boolean any_time) {
+		super(id, problem, max_cycles, p, any_time);
 
-		this.agents_global_table =  agents_table;
-		weight_table = new int [no_of_neighbors][][];
-		ok_message_box = new MessageBox<MessageOK>();
 		//improve_message_box = new MessageBox<MessageImprove>();
-        
-		for (int i = 0; i < no_of_neighbors; i++) {
-        	int neighbor_id = neighbor_map.get(i);
-        	weight_table[i] = new int[d][d];
-        	for (int v1 = 0; v1 < d; v1++)
-        		for (int v2 = 0; v2 < d; v2++) {
-        			ncccs++;
-        			if (problem.check(id, v1, neighbor_id, v2)) {
-        				weight_table[i][v1][v2] = 0;
-        			}
-        			else {
-        				weight_table[i][v1][v2] = 1;
-        			}     				
-        		}
-        }		
+        		
 		//rand_generator = new Random(seed);
 		rand_generator = new Random();
 		value = rand_generator.nextInt(d); 
@@ -47,7 +30,7 @@ abstract public class DSAAgent extends AbstractAgent {
 			//System.out.println("doing cycle");
 			send_ok(); 
 			wait_ok(); 
-			if (cycle_count == (cycles-1))
+			if (step_no == cycles)
 				completed=true;
 
 	   }

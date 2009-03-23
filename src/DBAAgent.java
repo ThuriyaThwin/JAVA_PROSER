@@ -14,31 +14,11 @@ public class DBAAgent extends AbstractAgent {
 	boolean completed=false; // will be set to false when not done
 	int my_improve;	
 
-	public DBAAgent(int id, Problem problem, int max_cycles,  AbstractAgent agents_table[],  double p, boolean any_time) {
-		super(id, problem, max_cycles, (AbstractAgent[]) agents_table, p, any_time);
+	public DBAAgent(int id, Problem problem, int max_cycles, double p, boolean any_time) {
+		super(id, problem, max_cycles, p, any_time);
 
-		this.agents_global_table =  agents_table;
-		weight_table = new int [no_of_neighbors][][];
-		ok_message_box = new MessageBox<MessageOK>();
 		improve_message_box = new MessageBox<MessageImprove>();
-        for (int i = 0; i < no_of_neighbors; i++) {
-        	int neighbor_id = neighbor_map.get(i);
-        	weight_table[i] = new int[d][d];
-        	for (int v1 = 0; v1 < d; v1++)
-        		for (int v2 = 0; v2 < d; v2++) {
-        			ncccs++;
-        			if (problem.check(id, v1, neighbor_id, v2)) {
-        				weight_table[i][v1][v2] = 0;
-        			}
-        			else {
-        				weight_table[i][v1][v2] = 1;
-        			}
-        				
-        		}
-        	
-        }
         
-		
 	}
 	
 	public void do_alg(int cycles) {
@@ -50,7 +30,7 @@ public class DBAAgent extends AbstractAgent {
 			send_improve();
 			wait_improve();
 			
-			if (cycle_count == cycles)
+			if (step_no == cycles)
 				completed=true;
 		
 			/*
@@ -133,8 +113,7 @@ public class DBAAgent extends AbstractAgent {
 		MessageImprove message = new MessageImprove(id, my_improve, current_eval, termination_counter);
 		
 		for (int i = 0 ; i < no_of_neighbors; i++) {
-		    int neighbor_id = neighbor_map.get(i);
-		    ((DBAAgent)agents_global_table[neighbor_id]).improve_message_box.send_message(message);
+		    ((DBAAgentInfo) neighbors[i]).improve_message_box.send_message(message);
 		    messages_sent++;
 		}
 	}

@@ -3,14 +3,14 @@
  */
 import java.util.*;
 public class MessageBox<M> {
-	ArrayList<M> messages;
+	LinkedList<M> messages;
 	
 	MessageBox() {
-		messages = new ArrayList<M>();
+		messages = new LinkedList<M>();
 	}
 	
 	synchronized void send_message(M message) {
-		messages.add(message);
+		messages.addFirst(message);
 		notify();
 	}
 	
@@ -26,10 +26,8 @@ public class MessageBox<M> {
 			}
 		}
 		
-		M ret_val = messages.get(0);
-		messages.remove(0);
+		M ret_val =	messages.removeLast();
 		return ret_val;
 	}
 	
-
 }

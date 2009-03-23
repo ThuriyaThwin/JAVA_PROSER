@@ -12,6 +12,7 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Stack;
 
 import jung_addtions.BFSTreeCreator;
 
@@ -66,7 +67,7 @@ public class AgentSolver {
 				Class cls =  Class.forName(agentType);	    
 			    Constructor ct[] = cls.getDeclaredConstructors();
 			    //agents[i] = new DBAAgent(i, problem, max_cycles, agents);
-			    agents[i] = (AbstractAgent) ct[0].newInstance(i, problem, max_cycles, agents, p, use_any_time);
+			    agents[i] = (AbstractAgent) ct[0].newInstance(i, problem, max_cycles, p, use_any_time);
 		    }
 		    catch (Throwable e) {
 		      System.err.println(e);
@@ -75,11 +76,74 @@ public class AgentSolver {
 
 		}
 		
+		init_agents(agentType);
 		setup_graph();	
 		if (use_any_time)
 		     setup_any_time();
 	}
 	
+	private void init_agents(String agentType) {
+		MessageBox [] message_boxes[] = new MessageBox[agents.length][];
+		int larger_neighbors_index_array[] = new int[agents.length];
+		ArrayList<Integer> neighbor_list[] = new ArrayList[agents.length];
+		
+		for (int i = 0; i < n; i++) {
+			neighbor_list[i] = new ArrayList<Integer>();
+			int no_of_neighbors = 0;
+			
+			// find i's neighbors (and count them)
+			for (int j = 0; j < n; j++) {
+				if (j == i) {
+					//TODO check if need +1 
+					larger_neighbors_index_array[i] = no_of_neighbors;
+					continue;
+				}
+					
+				if(problem.has_conflict(i, j)) {
+					neighbor_list[i].add(j);
+				    no_of_neighbors++;
+				}
+			}
+			
+			// creates i's message boxes (the ones he will write to)
+			message_boxes[i] = new MessageBox[no_of_neighbors];
+			for (int j = 0; j < no_of_neighbors; j++) {
+				message_boxes[i][j] = new MessageBox<MessageOK>();
+			}
+		}
+		
+		for (int i = 0; i < agents.length; i++) {
+			int num_of_neighbors = message_boxes[i].length;
+			
+			// TODO may be able to remove this if
+			AgentInfo neighbor_info_array[] = null;
+			if (! agentType.equals("DBAAgent")) {
+				neighbor_info_array = new AgentInfo[num_of_neighbors];
+			}
+	       else {
+	    	   neighbor_info_array = new DBAAgentInfo[num_of_neighbors];
+	       }
+
+	       for (int j = 0; j < num_of_neighbors; j++) {
+	    	   int neighbor_id = neighbor_list[i].get(j);
+	    	   int i_index = neighbor_list[neighbor_id].indexOf(new Integer(i));  	   
+
+	    	   MessageBox in_mail_box = message_boxes[i][j];
+	    	   MessageBox<MessageOK> out_mail_box =  message_boxes[neighbor_id][i_index];
+	    	
+	    	   if (! agentType.equals("DBAAgent")) {	
+					neighbor_info_array[j] = new AgentInfo(neighbor_id, in_mail_box, out_mail_box);	    	   }
+	    	   else {
+					neighbor_info_array[j] = new DBAAgentInfo(neighbor_id, 
+							in_mail_box, out_mail_box, 
+							((DBAAgent) agents[neighbor_id]).improve_message_box);
+				}	
+	    	   
+	       }
+	       
+	       agents[i].init(neighbor_info_array, larger_neighbors_index_array[i]);
+		}
+	}
 	private void setup_graph() {
         // create a simple graph for the demo
         graph = new UndirectedSparseGraph<AbstractAgent,Number>();

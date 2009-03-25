@@ -74,6 +74,7 @@ public class DBAAgent extends AbstractAgent {
 		read_neighbors_ok();
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void send_improve() {
 		int current_eval = dba_evalueate(value);
 		int best_eval = current_eval;

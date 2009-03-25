@@ -12,7 +12,7 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Stack;
+
 
 import jung_addtions.BFSTreeCreator;
 
@@ -35,9 +35,9 @@ public class AgentSolver {
 	public int messages_sent;
 	public int max_messages_sent;
 	public int ncccs;
+	public int steps;
 	
-	// TODO - shouldn't be public
-	public AbstractAgent agents[];
+	private AbstractAgent agents[];
 	
     /**
      * the graph will be used for display
@@ -53,6 +53,7 @@ public class AgentSolver {
 	 * @param problem
 	 */
  
+	@SuppressWarnings("unchecked")
 	public AgentSolver(Problem problem, String agentType, int max_cycles, double p, boolean any_time) {
 		this.problem = problem;
 		use_any_time = any_time;
@@ -82,6 +83,7 @@ public class AgentSolver {
 		     setup_any_time();
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void init_agents(String agentType) {
 		MessageBox [] message_boxes[] = new MessageBox[agents.length][];
 		int larger_neighbors_index_array[] = new int[agents.length];
@@ -241,6 +243,7 @@ public class AgentSolver {
 			messages_sent += agents[i].messages_sent;
 			max_messages_sent = Math.max(max_messages_sent, agents[i].messages_sent);
 			ncccs = Math.max(ncccs,agents[i].ncccs);
+			steps =  Math.max(steps ,agents[i].step_no);
 		}	
 		
 
@@ -287,7 +290,7 @@ public class AgentSolver {
 	// check that the results that are currently in v satisfy the constraints in problem
 	public int count_conflicts() {
 		int conflicts = 0;
-		boolean status = true;
+
 		for (int i = 0; i < problem.getN(); i++) {
 			for (int j = i+1; j < problem.getN(); j++) {
 				if (! problem.check(i, v[i], j, v[j])) {
@@ -296,7 +299,6 @@ public class AgentSolver {
 		    	   
 			}
 		}
-		
 		return conflicts;
 	}
 	

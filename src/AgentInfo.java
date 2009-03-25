@@ -9,9 +9,5 @@ public class AgentInfo {
 		this.ok_message_box_in = ok_message_box_in;
 		this.ok_message_box_out = ok_message_box_out;
 		
-		// TODO remove 
-		if (ok_message_box_out == null) {
-			System.out.println("ok_message_box_out is null");
-		}
 	}
 }

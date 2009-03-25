@@ -14,7 +14,7 @@ public abstract class AbstractAgent implements Runnable{
 	protected int d;
 	protected int n;
 	protected int value;   
-	protected int step_no;    // what cycle was reached?
+	public int step_no;    // what cycle was reached?
 	protected int max_cycles;    // after how many cycles to terminate if solution not found?
 	public int messages_sent;  // how many messages did current agent send
 	public int ncccs;          // What is the NCCCS of current agent
@@ -221,8 +221,6 @@ public abstract class AbstractAgent implements Runnable{
 		
 		for(int neighbor_index = 0; neighbor_index < no_of_neighbors; neighbor_index++) {
 			MessageOK message = neighbors[neighbor_index].ok_message_box_in.read_message();
-			int neighbor_id = message.id;
-			//System.out.println("my step is: " + step_no + " his step is: " + message.step_no + " my id is: " + id + " his id is "+ message.id);
 			
 			agent_view[neighbor_index] = message.current_value;
 			
@@ -274,7 +272,6 @@ public abstract class AbstractAgent implements Runnable{
 			value = 0;	
 		}
 		else {
-			//System.out.println("bfs_dist + bfs_height+ max_cycles = " + max_cycles + bfs_dist + bfs_height);
 	        do_alg(max_cycles + bfs_dist + bfs_height);
 	        if (any_time) {
 	           post_alg_steps();

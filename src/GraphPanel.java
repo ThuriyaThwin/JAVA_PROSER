@@ -204,13 +204,13 @@ public class GraphPanel<V,E> extends JPanel {
      *
      * @param <V>
      */
-    class ClusterVertexSizeFunction<V> implements Transformer<V,Integer> {
+    class ClusterVertexSizeFunction<X> implements Transformer<X,Integer> {
     	int size;
         public ClusterVertexSizeFunction(Integer size) {
             this.size = size;
         }
 
-        public Integer transform(V v) {
+        public Integer transform(X v) {
             if(v instanceof Graph) {
                 return 30;
             }
@@ -218,13 +218,13 @@ public class GraphPanel<V,E> extends JPanel {
         }
     }
     
-    class RectangleVertexShapeFunction<V> extends EllipseVertexShapeTransformer<V> {
+    class RectangleVertexShapeFunction<VV> extends EllipseVertexShapeTransformer<VV> {
 
     	RectangleVertexShapeFunction() {
-            setSizeTransformer(new ClusterVertexSizeFunction<V>(20));
+            setSizeTransformer(new ClusterVertexSizeFunction<VV>(20));
         }
         @Override
-        public Shape transform(V v) {
+        public Shape transform(VV v) {
             if(v instanceof Graph) {
                 int size = ((Graph)v).getVertexCount(); 
                 return factory.getRectangle(v);

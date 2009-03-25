@@ -10,7 +10,6 @@ public class DSA_A_Agent extends DSAAgent{
 	void select_next_value(boolean is_improve, int v, double p){
 		if (is_improve){
 			/* delta > 0 */
-			//TODO System.out.println("in select_next_value");
 			change_value_with_prob(v,p);
 		}		
 	}

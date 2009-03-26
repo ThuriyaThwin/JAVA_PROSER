@@ -7,8 +7,9 @@ public class DSA_C_Agent extends DSAAgent{
 		super(id, problem, max_cycles, p, any_time);
 	}
 
-	void select_next_value(boolean is_improve, int v, double p){
+	void select_next_value(int delta, int v, double p){
 			/* no matter what */
-			change_value_with_prob(v,p);		
+			change_value_with_prob(v,p);	
+			
 	}
 }

@@ -4,7 +4,12 @@ import general.Definitions;
 import general.Problem;
 import java.awt.GridLayout;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.lang.reflect.Constructor;
+
 import javax.swing.JFrame;
+
 import prosser.FC_Cbj;
 import jxl.*;
 import jxl.write.*;
@@ -28,14 +33,14 @@ public class Flows {
 	public static void main(String[] args) {
 		//run_queens("DBAAgent", 4, 20000);
 		//run_queens("DSA_A_Agent", 4, 20000);
-	    //run_gui_test("DSA_B_Agent", 7, 1000);
+	    run_gui_test("DSA_E_Agent", 10, 1000);
 		//run_gui_test("DBAAgent", 10, 100);
-	    //make_samples();
-		//run_tests();
+	    //make_samples(10);
+		//run_tests(10, 1000, 0.2);
 		//run_example();
 		
 		//make_random_samples();
-		run_random_tests(10, 1500);
+		//run_random_tests(10, 1000);
 	}
 	
 	
@@ -78,39 +83,10 @@ public class Flows {
 	    solver.printV(System.out);
 
     }
-   // "Play" with this to run with diffrent p1/p2 values
-	
-   private static double p2_min = 0.1;
-   private static double p2_max = 0.91;
-   private static double p2_jump = 0.05;
-   
-   private static double p1_min = 0.3;
-   private static double p1_max = 0.7;
-   private static double p1_jump = 0.2;
-   
-   private static int samples_count=60;
-   
-	//creates the problems in directory input
-	// make sure directory input exists before running
-	public static void make_samples() {
-			
-		for (double p1 = p1_min; p1 <= p1_max; p1+= p1_jump) {
-			for (double p2 = p2_min; p2 <= p2_max; p2+= p2_jump) {
-				for (int i = 0; i < samples_count; i++) {
-					String fileName = "input/case.p1=" + p1 + "_p2=" + p2 + "_i=" + i;
-					System.out.println("creating " + fileName);
-					//Problem problem = new Problem(15,10,p1,p2);
-					Problem problem = new Problem(15, 10, p1,p2);
-					problem.save2File(fileName);
-				}
-			}
-		}
-		
-	}
-	
+
 
 	private static String random_input_dir = "random_input";
-	private static String random_out_dir = "random_output";
+	private static String out_dir = "output";
 
 	public static void make_random_samples(int no_of_random_samples) {
 
@@ -134,14 +110,25 @@ public class Flows {
 	private static double p_min = 0.1;
 	private static double p_max = 0.91;
 	private static double p_jump = 0.05;
-	   
+	
+	// used for printing results in both algorithms
+	private static String measure_names[] = {
+			"conflicts_at_end",
+			"failures",
+			"any_time_index",
+			"total_messages", 
+			"max_messages",
+			"ncccs", 
+			"steps"
+		};
+	
 	public static void run_random_tests(int no_of_random_samples,  int cycle_count) {
 		String agent_class_names[] = {
 			"DSA_A_Agent", "DSA_B_Agent", "DSA_C_Agent", "DSA_D_Agent", 
 			"DSA_E_Agent", "DBAAgent"  	    
 		};
 		
-		int num_of_p = 1 + (int) Math.ceil((p2_max-p2_min)/p2_jump);
+		int num_of_p = 1 + (int) Math.ceil((p_max-p_min)/p_jump);
 		int num_of_alg = 2*agent_class_names.length;
 	    int conflicts_at_end[][] = new int[num_of_alg][num_of_p]; // need to avrage at end
 	    int failures[][] = new int[num_of_alg][num_of_p]; // when was there a solution but it was not found
@@ -208,17 +195,6 @@ public class Flows {
          ********************/ 		
 		
 		
-		String measure_names[] = {
-				"conflicts_at_end",
-				"failures",
-				"any_time_index",
-				"total_messages", 
-				"max_messages",
-				"ncccs", 
-				"steps"
-			};
-		
-		
 		int [][] measure_arrays[] = {
 				conflicts_at_end,
 				failures,
@@ -231,7 +207,14 @@ public class Flows {
 		
 		WritableSheet sheet;
 		
-		String reportFileName = random_out_dir + "/random_report" +  "_N#" + problem.getN() + "_D#" + problem.getD() + ".xls";
+		// make output dir
+		File output_dir = new File(out_dir);
+		if ((! output_dir.isDirectory()) && (! output_dir.mkdir())) {
+			System.out.println("Error createing dir " + output_dir);
+			System.exit(1);
+		}
+		
+		String reportFileName = out_dir + "/random_report" +  "_N#" + problem.getN() + "_D#" + problem.getD() + ".xls";
 
 		try{
 			// create the xls file
@@ -278,6 +261,10 @@ public class Flows {
 					sheet.addCell(number);
 					}
 				}
+				
+				if (measure_names[m].equals("failures")) {
+					Number number = new Number(num_of_alg+1, p_index+1, solvable);
+				}
 			}	
 				
 			workbook.write();
@@ -291,6 +278,198 @@ public class Flows {
 
 }
 
+   // "Play" with this to run with diffrent p1/p2 values
+	
+	private static String input_dir_name = "input";
+	
+   private static double p2_min = 0.1;
+   private static double p2_max = 0.91;
+   private static double p2_jump = 0.05;
+   
+   private static double p1_min = 0.3;
+   private static double p1_max = 0.7;
+   private static double p1_jump = 0.2;
+   
+	//creates the problems in directory input
+	// make sure directory input exists before running
+	public static void make_samples(int samples_count) {
+			
+		File input_dir = new File(input_dir_name);
+		if ((! input_dir.isDirectory()) && (! input_dir.mkdir())) {
+			System.out.println("Error createing dir " + input_dir);
+			System.exit(1);
+		}
+		
+		for (double p1 = p1_min; p1 <= p1_max; p1+= p1_jump) {
+			for (double p2 = p2_min; p2 <= p2_max; p2+= p2_jump) {
+				for (int i = 0; i < samples_count; i++) {
+					String fileName = input_dir_name + "/case.p1=" + p1 + "_p2=" + p2 + "_i=" + i;
+					System.out.println("creating " + fileName);
+					Problem problem = new Problem(15, 10, p1,p2);
+					problem.save2File(fileName);
+				}
+			}
+		}
+		
+	}
+	
+public static void run_tests(int samples_count, int cycle_count, double p) {
+
+		int p1_index = 0;
+		int p2_index = 0;
+		int num_of_p2 = 1 + (int) Math.ceil((p2_max-p2_min)/p2_jump);
+		int num_of_p1 = 1 + (int) Math.ceil((p1_max-p1_min)/p1_jump);
+
+		String agent_class_names[] = {
+				 "DSA_B_Agent", "DBAAgent"  	    
+			};
+			
+		
+		int num_of_alg = agent_class_names.length;
+		int conflicts_at_end[][][] = new int[num_of_alg][num_of_p1][num_of_p2]; // need to avrage at end
+		int failures[][][] = new int[num_of_alg][num_of_p1][num_of_p2]; // when was there a solution but it was not found
+		int any_time_index[][][] =   new int[num_of_alg][num_of_p1][num_of_p2]; 
+		int total_messages[][][] = new int[num_of_alg][num_of_p1][num_of_p2]; 
+		int max_messages[][][] = new int[num_of_alg][num_of_p1][num_of_p2]; 
+		int ncccs[][][] = new int[num_of_alg][num_of_p1][num_of_p2]; 
+		int steps[][][] = new int[num_of_alg][num_of_p1][num_of_p2];
+		int solvable[][] = new int [num_of_p1][num_of_p2]; 
+		    
+		int i;
+		Problem problem = null;
+		for (i = 0; i < samples_count; i++) {
+			p1_index = 0;
+			for (double p1 = p1_min; p1 <= p1_max; p1+= p1_jump, p1_index++) {
+				p2_index=0;
+				for (double p2 = p2_min; p2 <= p2_max; p2+= p2_jump, p2_index++) {
+					String inputFileName = input_dir_name + "/case.p1=" + p1 + "_p2=" + p2 + "_i=" + i;
+		
+					// read problem
+					problem = new Problem(inputFileName);
+						
+					// run FC_Cbj;
+					System.out.println("Running FC_Cbj for case case" + i);
+					FC_Cbj solver_FC_Cbj = new FC_Cbj(problem);
+						
+					Definitions.StatOptions fc_cbj_status = solver_FC_Cbj.bcssp();
+						
+					// verify solution
+					if (fc_cbj_status == Definitions.StatOptions.SOLUTION && ! solver_FC_Cbj.check_results()) {
+							System.out.println("Bug !!! FC-CBJ result is wrong");
+							System.exit(1);
+					}
+					
+					if (fc_cbj_status == Definitions.StatOptions.SOLUTION)
+						solvable[p1_index][p2_index]++;
+						
+				
+					for (int alg_no = 0; alg_no < num_of_alg ; alg_no++) {
+						String alg_name = agent_class_names[alg_no];		
+						
+						System.out.println("Running " + alg_name + " for case #" + i + " p1 is " + p1 + " p2 is " + p2);
+						AgentSolver solver = new AgentSolver(problem, alg_name, cycle_count, p, true);
+						solver.solve();	
+						
+						int conflicts = solver.count_conflicts();
+					    conflicts_at_end[alg_no][p1_index][p2_index] += conflicts;
+					    if ((fc_cbj_status == Definitions.StatOptions.SOLUTION) &&  (conflicts != 0))
+					    		failures[alg_no][p1_index][p2_index]++;
+					    any_time_index[alg_no][p1_index][p2_index] += solver.any_time_max_index;
+					    total_messages[alg_no][p1_index][p2_index] += solver.messages_sent; 
+					    max_messages[alg_no][p1_index][p2_index] += solver.max_messages_sent; 
+					    ncccs[alg_no][p1_index][p2_index] += solver.ncccs;
+					    steps[alg_no][p1_index][p2_index] += solver.steps;						
+					} // end of alg loop
+				} // end of p2 loop	
+			} // end of p1 loop
+		} // end of i loop (go to next sample)
+	
+		/********************
+         * print reports
+         ********************/ 	
+		
+		p1_index = 0;
+		p2_index = 0;
+		for (double p1 = p1_min; p1 <= p1_max; p1+= p1_jump, p1_index++)  {
+			
+			int [][][] measure_arrays[] = {
+					conflicts_at_end,
+					failures,
+					any_time_index,
+					total_messages,
+					max_messages,
+					ncccs,
+					steps
+			};
+			
+			WritableSheet sheet;
+			
+			// make output dir
+			File output_dir = new File(out_dir);
+			if ((! output_dir.isDirectory()) && (! output_dir.mkdir())) {
+				System.out.println("Error createing dir " + output_dir);
+				System.exit(1);
+			}
+			
+			String reportFileName = out_dir + "/report" + "_p1="+ p1 +"_dsa_p="+ p + "_N#" + problem.getN() + "_D#" + problem.getD() + ".xls";
+
+			try{
+				// create the xls file
+				WritableWorkbook workbook = Workbook.createWorkbook(new File(reportFileName));
+				
+				int sheet_no=0;
+				
+				for (int m=0; m < measure_arrays.length; m++) {
+					sheet = workbook.createSheet(measure_names[m], sheet_no++);
+					Label label =  new Label(0, 0, "p");
+					sheet.addCell(label);
+					
+					for (int alg_no = 0; alg_no < num_of_alg ; alg_no++) {
+						String alg_name = agent_class_names[alg_no%agent_class_names.length];
+						if (alg_no >= agent_class_names.length) {
+							alg_name = alg_name + "_any_time";
+						}
+						
+					    label = new Label(alg_no+1, 0, alg_name);
+						sheet.addCell(label);
+					}
+				
+				    p2_index = 0;
+					for (double p2 = p2_min; p2 <= p2_max; p2+= p2_jump, p2_index++)  {
+						Number number = new Number(0,p2_index+1,p2);
+						sheet.addCell(number);
+					
+						for (int alg_no = 0; alg_no < num_of_alg ; alg_no++) {
+							String alg_name = agent_class_names[alg_no];
+					
+							if (measure_names[m].equals("failures")) {
+								number = new Number(alg_no+1, p2_index+1, failures[alg_no][p1_index][p2_index]);
+							}
+							else {
+								number = new Number(alg_no+1, p2_index+1, measure_arrays[m][alg_no][p1_index][p2_index]/samples_count);
+							}
+						
+							sheet.addCell(number);
+						}
+						
+						if (measure_names[m].equals("failures")) {
+							number = new Number(num_of_alg+1, p2_index+1, solvable[p1_index][p2_index]);
+						}
+					}
+				}	
+					
+				workbook.write();
+				workbook.close();
+			}
+			catch (Exception e) {
+				System.out.println("problem with file excel api" + reportFileName );
+				e.printStackTrace();
+				//System.exit(1);
+			}
+		
+	    }
+			
+	}
 	
 	
 	

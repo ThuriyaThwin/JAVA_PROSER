@@ -75,12 +75,12 @@ abstract public class DSAAgent extends AbstractAgent {
 		}
 	}
 	
-	abstract void select_next_value(boolean is_improve, int v, double p); 
+	abstract void select_next_value(int delta, int v, double p); 
 	
 	protected void wait_ok() {
 		read_neighbors_ok();
 		int v = get_lowest_delta_value();
-		select_next_value(is_improve, v, p);
+		select_next_value(delta, v, p);
 		current_conflicts_count = evalueate(value);
 	}
 	

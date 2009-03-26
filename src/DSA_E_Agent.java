@@ -11,7 +11,7 @@ public class DSA_E_Agent extends DSAAgent{
 		if(delta > 0){
 			value = v;
 		}
-		else
+		else if (delta == 0)
 			change_value_with_prob(v,p);		
 	}
 }

@@ -7,12 +7,11 @@ public class DSA_E_Agent extends DSAAgent{
 		super(id, problem, max_cycles, p, any_time);
 	}
 
-	void select_next_value(boolean is_improve, int v, double p){
-		if(is_improve){
+	void select_next_value(int delta, int v, double p){
+		if(delta > 0){
 			value = v;
-			return;
 		}
-		/* delta=0 */
-		change_value_with_prob(v,p);		
+		else
+			change_value_with_prob(v,p);		
 	}
 }

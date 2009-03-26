@@ -8,7 +8,7 @@ public class DSA_C_Agent extends DSAAgent{
 	}
 
 	void select_next_value(int delta, int v, double p){
-			/* no matter what */
+		if (delta >= 0)
 			change_value_with_prob(v,p);	
 			
 	}

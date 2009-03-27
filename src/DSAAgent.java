@@ -11,8 +11,8 @@ abstract public class DSAAgent extends AbstractAgent {
 	Random rand_generator;
 	int seed = 4;
 	
-	public DSAAgent(int id, Problem problem, int max_cycles,  double p, boolean any_time) {
-		super(id, problem, max_cycles, p, any_time);
+	public DSAAgent(int id, Problem problem, int max_cycles,  boolean any_time) {
+		super(id, problem, max_cycles, any_time);
 
 		//improve_message_box = new MessageBox<MessageImprove>();
         		

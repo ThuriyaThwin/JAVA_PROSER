@@ -36,13 +36,13 @@ public class Flows {
 		//run_queens("DBAAgent", 4, 20000);
 		//run_queens("DSA_A_Agent", 4, 2000);
 	    //run_gui_test("DSA_B_Agent", 10, 100);
-		//run_gui_test("DBAAgent", 10, 100);
+		run_gui_test("DBAAgent", 4, 100);
 	    //make_samples(50);
 		//run_tests(100, 1000, 0.2);
 		//run_example();
 		
 		//make_random_samples(100);
-		run_random_tests(3, 600);
+		//run_random_tests(3, 500);
 	}
 	
 	
@@ -53,9 +53,9 @@ public class Flows {
         JFrame f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-		//Problem problem = new Problem(queens_count);
-        Problem problem = new Problem(10, 10, 0.1,0.5);
-        problem.save2File("problem_save.prb");
+		Problem problem = new Problem(queens_count);
+        //Problem problem = new Problem(10, 10, 0.1,0.5);
+        //problem.save2File("problem_save.prb");
         //Problem problem = new Problem("problem_save.prb");
 		AgentSolver solver = new AgentSolver(problem, AgentAlgorith, cycle_count, 0.1, true);
 		
@@ -328,9 +328,11 @@ public static void run_tests(int samples_count, int cycle_count, double p) {
 		int num_of_p1 = 1 + (int) Math.ceil((p1_max-p1_min)/p1_jump);
 
 		String agent_class_names[] = {
-				 "DSA_B_Agent", "DBAAgent"  	    
+				"DSA_A_Agent", "DSA_B_Agent", "DSA_C_Agent", "DSA_D_Agent", 
+				"DSA_E_Agent", "DBAAgent"  	    
 			};
 			
+		
 		
 		int num_of_alg = agent_class_names.length;
 		int conflicts_at_end[][][] = new int[num_of_alg][num_of_p1][num_of_p2]; // need to avrage at end

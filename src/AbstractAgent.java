@@ -62,7 +62,7 @@ public abstract class AbstractAgent implements Runnable{
 	                           // for children if the got terminate message from parent
 	int termination_count;
 
-	public AbstractAgent(int id, Problem problem, int max_cycles, double p, boolean any_time) {
+	public AbstractAgent(int id, Problem problem, int max_cycles, boolean any_time) {
 		d = problem.getD();
 		n = problem.getN();
 		this.max_cycles = max_cycles;
@@ -82,29 +82,14 @@ public abstract class AbstractAgent implements Runnable{
 
 	}
 	
-	public void init (AgentInfo neighbors[], int larger_neighbors_index ){
+	public void init (AgentInfo neighbors[], int larger_neighbors_index, int[][] weight_table[] ){
 		this.neighbors = neighbors;
 		no_of_neighbors = neighbors.length;
 		this.larger_neighbors_index = larger_neighbors_index;
-		weight_table = new int [no_of_neighbors][][];
+		this.weight_table = weight_table;
 		
 		for (int i = 0; i < no_of_neighbors ; i++) {
-			int neighbor_id = neighbors[i].id;
-		    neighbor_id_map.put(neighbor_id, i);
-        	weight_table[i] = new int[d][d];
-        	
-        	for (int v1 = 0; v1 < d; v1++)
-        		for (int v2 = 0; v2 < d; v2++) {
-        			ncccs++;
-        			if (problem.check(id, v1, neighbor_id, v2)) {
-        				weight_table[i][v1][v2] = 0;
-        			}
-        			else {
-        				weight_table[i][v1][v2] = 1;
-        			}
-        				
-        		}
-        	
+		    neighbor_id_map.put(neighbors[i].id, i);        	
         }
 		agent_view = new int[no_of_neighbors+1];
 	}

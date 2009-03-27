@@ -126,6 +126,7 @@ public class AgentSolver {
 	    	   neighbor_info_array = new DBAAgentInfo[num_of_neighbors];
 	       }
 
+		   int[][] weight_table[] = new int [num_of_neighbors][][];
 	       for (int j = 0; j < num_of_neighbors; j++) {
 	    	   int neighbor_id = neighbor_list[i].get(j);
 	    	   int i_index = neighbor_list[neighbor_id].indexOf(new Integer(i));  	   
@@ -141,9 +142,24 @@ public class AgentSolver {
 							((DBAAgent) agents[neighbor_id]).improve_message_box);
 				}	
 	    	   
+	    	   weight_table[j] = new int[d][d];
+	        	
+	        	for (int v1 = 0; v1 < d; v1++)
+	        		for (int v2 = 0; v2 < d; v2++) {
+	        			ncccs++;
+	        			if (problem.check(i, v1, neighbor_id, v2)) {
+	        				weight_table[j][v1][v2] = 0;
+	        			}
+	        			else {
+	        				weight_table[j][v1][v2] = 1;
+	        			}
+	        				
+	        		}
+	    	   
 	       }
-	       
-	       agents[i].init(neighbor_info_array, larger_neighbors_index_array[i]);
+	        
+			
+	       agents[i].init(neighbor_info_array, larger_neighbors_index_array[i], weight_table);
 		}
 	}
 	private void setup_graph() {

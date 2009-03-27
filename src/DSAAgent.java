@@ -4,7 +4,6 @@ import general.Problem;
 import java.util.Random;
 
 abstract public class DSAAgent extends AbstractAgent {
-	boolean completed=false; // will be set to false when not done
 	int current_conflicts_count;
 	int delta;
 

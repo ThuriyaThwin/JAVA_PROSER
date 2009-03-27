@@ -11,7 +11,6 @@ public class DBAAgent extends AbstractAgent {
 	boolean can_move = false;
 	IntStack coflicting_vars;  // TODO: this saves constraint checks but maybe should be counted
 	int new_value;
-	boolean completed=false; // will be set to false when not done
 	int my_improve;	
 
 	public DBAAgent(int id, Problem problem, int max_cycles, double p, boolean any_time) {

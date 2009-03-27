@@ -1,4 +1,14 @@
 
+/*****************************************************************************************
+ * Class: AbstractAgent
+ * 
+ * This call implements methods that are common to all agent types
+ * it handles any time required parameters
+ * The decision whether or not the agent is an "anytime" agent is determined by constructor
+ *****************************************************************************************/
+
+
+
 import general.Problem;
 
 import java.util.HashMap;
@@ -32,6 +42,7 @@ public abstract class AbstractAgent implements Runnable{
 	HashMap<Integer,Integer> neighbor_id_map; // map id to index
 	
 	protected abstract void do_alg(int cycles);
+	boolean completed=false; // will be set to false when not done
 	
 	// Variables for AnyTime implementation 
 	protected boolean any_time=false;
@@ -47,6 +58,9 @@ public abstract class AbstractAgent implements Runnable{
 	private int cost_i[]; // this cost of steps history
 	private int val_i[]; // the value history
 	private int val_i_len;
+	boolean terminate = false; // this os set to true for root if result was reached and 
+	                           // for children if the got terminate message from parent
+	int termination_count;
 
 	public AbstractAgent(int id, Problem problem, int max_cycles, double p, boolean any_time) {
 		d = problem.getD();
@@ -64,6 +78,7 @@ public abstract class AbstractAgent implements Runnable{
 		
 		value = (int) (Math.random() * d);
 		step_no = -1;
+		termination_count = Integer.MAX_VALUE;
 
 	}
 	
@@ -160,7 +175,7 @@ public abstract class AbstractAgent implements Runnable{
 			any_time_send_ok();
 		}
 		else {
-			MessageOK message = new MessageOK(id, value, step_no);
+			MessageOK message = new MessageOK(id, value);
 			
 			for (int i = 0 ; i < no_of_neighbors; i++) {
 			    neighbors[i].ok_message_box_out.send_message(message);
@@ -171,7 +186,7 @@ public abstract class AbstractAgent implements Runnable{
 	
 	public void any_time_send_ok() {
 		
-		MessageOK message = new MessageOK(id, value, step_no);
+		MessageOKAnyTime message = new MessageOKAnyTime(id, value, terminate);
 		int cost = Integer.MAX_VALUE;
 		
 		int i = step_no - bfs_height;
@@ -180,8 +195,8 @@ public abstract class AbstractAgent implements Runnable{
 			cost = cost_i[i%bfs_height];
 		}
 
-		MessageOKAnyTime2Parent parent_message = new MessageOKAnyTime2Parent (id, value, cost, i, step_no);
-		MessageOKAnyTime2Son child_message = new MessageOKAnyTime2Son(id, value, best_index, step_no);
+		MessageOKAnyTime2Parent parent_message = new MessageOKAnyTime2Parent (id, value, cost, i,  terminate);
+		MessageOKAnyTime2Son child_message = new MessageOKAnyTime2Son(id, value, best_index, terminate);
 		
 		for (int k = 0 ; k < no_of_neighbors; k++) {
 		    int neighbor_id = neighbors[k].id;
@@ -216,13 +231,17 @@ public abstract class AbstractAgent implements Runnable{
 	}
 	
 	public void any_time_read_neighbors_ok() {
-		
+			
 		int i = step_no - bfs_height + 1;
 		
 		for(int neighbor_index = 0; neighbor_index < no_of_neighbors; neighbor_index++) {
-			MessageOK message = neighbors[neighbor_index].ok_message_box_in.read_message();
+			MessageOKAnyTime message = (MessageOKAnyTime) neighbors[neighbor_index].ok_message_box_in.read_message();
 			
 			agent_view[neighbor_index] = message.current_value;
+			if (message.terminate == true) {
+				terminate = true;
+				termination_count = this.bfs_height;
+			}
 			
 			if (message.id == bfs_parent_id) {
 				MessageOKAnyTime2Son parent_message = (MessageOKAnyTime2Son) message;
@@ -249,9 +268,21 @@ public abstract class AbstractAgent implements Runnable{
 				best_cost = cost_i[i%bfs_height];
 				best = val_i[i%val_i_len];
 				best_index = i;
+				if (best_cost == 0) {
+					terminate = true;
+					termination_count = this.bfs_height;
+				}
 			}
 		
 		}
+		
+		//TODO
+		// This is the place where automatic termination can be set on and off
+		// it is a good Idea to move it to be part of the class
+		if (terminate)
+			if (termination_count-- == 0) {
+				completed = true;
+			}
 		
 	}
 	
@@ -273,7 +304,7 @@ public abstract class AbstractAgent implements Runnable{
 		}
 		else {
 	        do_alg(max_cycles + bfs_dist + bfs_height);
-	        if (any_time) {
+	        if (any_time && termination_count != 0) {
 	           post_alg_steps();
 	           value = best;
 	        }   
@@ -285,7 +316,7 @@ public abstract class AbstractAgent implements Runnable{
         for (int k = 0; k < (bfs_dist + bfs_height) ; k++) {
         	step_no++;
             // send message to children
-	        MessageOKAnyTime2Son child_message = new MessageOKAnyTime2Son(id, value, best_index, -1);
+	        MessageOKAnyTime2Son child_message = new MessageOKAnyTime2Son(id, value, best_index, true);
 			
 	        Iterator<Integer> iter = bfs_children.iterator();
 	        while (iter.hasNext()) {
@@ -302,8 +333,6 @@ public abstract class AbstractAgent implements Runnable{
 	        	if (message.id != bfs_parent_id) {
 					System.out.println("Bug !!! got a non parent message at post_steps");
 					System.out.println("message id is " + message.id + " id is" + id);
-					System.out.println("my step is: " + step_no + "his step is: " + message.step_no);
-					//System.exit(1);
 					continue;
 	        	}
 	        	

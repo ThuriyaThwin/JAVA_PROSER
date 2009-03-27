@@ -11,6 +11,8 @@ import java.lang.reflect.Constructor;
 import javax.swing.JFrame;
 
 import prosser.FC_Cbj;
+import jxl.format.*;
+import jxl.format.CellFormat;
 import jxl.*;
 import jxl.write.*;
 import jxl.write.Number;
@@ -36,11 +38,11 @@ public class Flows {
 	    //run_gui_test("DSA_E_Agent", 10, 1000);
 		//run_gui_test("DBAAgent", 10, 100);
 	    //make_samples(50);
-		//run_tests(50, 1000, 0.2);
+		//run_tests(100, 1000, 0.2);
 		//run_example();
 		
-		//make_random_samples();
-		run_random_tests(50, 500);
+		make_random_samples(100);
+		run_random_tests(100, 600);
 	}
 	
 	
@@ -145,28 +147,29 @@ public class Flows {
 	    Problem problem = null;
 
 		for (int i = 0; i < no_of_random_samples; i++) {
+			String inputFileName = random_input_dir + "/case." + i;
+			// read problem
+			problem = new Problem(inputFileName);
+				
+			// run FC_Cbj;
+			System.out.println("Running FC_Cbj for case case" + i);
+			FC_Cbj solver_FC_Cbj = new FC_Cbj(problem);
+				
+			Definitions.StatOptions fc_cbj_status = solver_FC_Cbj.bcssp();
+				
+			// verify solution
+			if (fc_cbj_status == Definitions.StatOptions.SOLUTION && ! solver_FC_Cbj.check_results()) {
+					System.out.println("Bug !!! FC-CBJ result is wrong");
+					System.exit(1);
+			}
+			
+			if (fc_cbj_status == Definitions.StatOptions.SOLUTION)
+				solvable++;
+				
+				
+
 			int p_index = 0;
 			for (double p = p_min; p <= p_max; p+= p_jump, p_index++) {
-				String inputFileName = random_input_dir + "/case." + i;
-				// read problem
-				problem = new Problem(inputFileName);
-					
-				// run FC_Cbj;
-				System.out.println("Running FC_Cbj for case case" + i);
-				FC_Cbj solver_FC_Cbj = new FC_Cbj(problem);
-					
-				Definitions.StatOptions fc_cbj_status = solver_FC_Cbj.bcssp();
-					
-				// verify solution
-				if (fc_cbj_status == Definitions.StatOptions.SOLUTION && ! solver_FC_Cbj.check_results()) {
-						System.out.println("Bug !!! FC-CBJ result is wrong");
-						System.exit(1);
-				}
-				
-				if (fc_cbj_status == Definitions.StatOptions.SOLUTION)
-					solvable++;
-					
-					
 				for (int alg_no = 0; alg_no < num_of_alg ; alg_no++) {
 						String alg_name = agent_class_names[alg_no%agent_class_names.length];
 						boolean any_time = false;
@@ -205,7 +208,7 @@ public class Flows {
 				steps
 		};
 		
-		WritableSheet sheet;
+
 		
 		// make output dir
 		File output_dir = new File(out_dir);
@@ -216,10 +219,12 @@ public class Flows {
 		
 		String reportFileName = out_dir + "/random_report" +  "_N#" + problem.getN() + "_D#" + problem.getD() + ".xls";
 
+		WritableCellFormat cf = new WritableCellFormat(new NumberFormat("#,##0.00"));
+		
 		try{
 			// create the xls file
 			WritableWorkbook workbook = Workbook.createWorkbook(new File(reportFileName));
-			
+			WritableSheet sheet;
 
 			
 			int sheet_no=0;
@@ -251,19 +256,21 @@ public class Flows {
 							alg_name = alg_name + "_any_time";
 						}
 				
-					if (measure_names[m].equals("failures")) {
-						number = new Number(alg_no+1, p_index+1, failures[alg_no][p_index]);
-					}
-					else {
-						number = new Number(alg_no+1, p_index+1, measure_arrays[m][alg_no][p_index]/no_of_random_samples);
+						if (measure_names[m].equals("failures")) {
+							number = new Number(alg_no+1, p_index+1, failures[alg_no][p_index]);
+						}
+						else {
+							number = new Number(alg_no+1, p_index+1, (double) measure_arrays[m][alg_no][p_index]/(double) no_of_random_samples);
+							number.setCellFormat(cf);
+						}
+						sheet.addCell(number);
 					}
 					
-					sheet.addCell(number);
+					if (measure_names[m].equals("failures")) {
+						number = new Number(num_of_alg+1, p_index+1, solvable);
+						sheet.addCell(number);
+
 					}
-				}
-				
-				if (measure_names[m].equals("failures")) {
-					Number number = new Number(num_of_alg+1, p_index+1, solvable);
 				}
 			}	
 				
@@ -388,6 +395,9 @@ public static void run_tests(int samples_count, int cycle_count, double p) {
          * print reports
          ********************/ 	
 		
+
+		WritableCellFormat cf = new WritableCellFormat(new NumberFormat("#,##0.00"));
+
 		p1_index = 0;
 		p2_index = 0;
 		for (double p1 = p1_min; p1 <= p1_max; p1+= p1_jump, p1_index++)  {
@@ -446,14 +456,15 @@ public static void run_tests(int samples_count, int cycle_count, double p) {
 								number = new Number(alg_no+1, p2_index+1, failures[alg_no][p1_index][p2_index]);
 							}
 							else {
-								number = new Number(alg_no+1, p2_index+1, measure_arrays[m][alg_no][p1_index][p2_index]/samples_count);
+								number = new Number(alg_no+1, p2_index+1, (double) measure_arrays[m][alg_no][p1_index][p2_index]/(double)  samples_count);
+								number.setCellFormat(cf);
 							}
-						
 							sheet.addCell(number);
 						}
 						
 						if (measure_names[m].equals("failures")) {
 							number = new Number(num_of_alg+1, p2_index+1, solvable[p1_index][p2_index]);
+							sheet.addCell(number);
 						}
 					}
 				}	

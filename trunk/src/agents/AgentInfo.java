@@ -1,3 +1,6 @@
+package agents;
+import messages.*;
+
 
 public class AgentInfo {
 	public MessageBox<MessageOK> ok_message_box_in;

@@ -1,3 +1,5 @@
+package messages;
+
 
 // This is the message the will be sent to BFS child when Any Time is implemented
 public class MessageOKAnyTime2Son extends MessageOKAnyTime {

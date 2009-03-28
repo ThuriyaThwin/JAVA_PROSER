@@ -1,10 +1,11 @@
+package agents;
 import general.Problem;
 
 
 public class DSA_B_Agent extends DSAAgent{
 	
-	public DSA_B_Agent(int id, Problem problem, int max_cycles, boolean any_time) {
-		super(id, problem, max_cycles, any_time);
+	public DSA_B_Agent(int id, int max_cycles, double p, boolean any_time, int d, int n) {
+		super(id, max_cycles, p, any_time, d, n);
 	}
 
 	void select_next_value(int delta, int v, double p){

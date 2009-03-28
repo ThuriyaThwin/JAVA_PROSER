@@ -1,3 +1,5 @@
+package messages;
+
 
 public class MessageOKAnyTime2Parent extends MessageOKAnyTime {
 	public int cost_i;

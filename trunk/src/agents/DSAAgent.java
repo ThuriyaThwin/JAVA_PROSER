@@ -1,3 +1,4 @@
+package agents;
 
 import general.Problem;
 
@@ -11,8 +12,8 @@ abstract public class DSAAgent extends AbstractAgent {
 	Random rand_generator;
 	int seed = 4;
 	
-	public DSAAgent(int id, Problem problem, int max_cycles,  boolean any_time) {
-		super(id, problem, max_cycles, any_time);
+	public DSAAgent(int id, int max_cycles, double p,  boolean any_time, int d, int n) {
+		super(id, max_cycles, p, any_time, d, n);
 
 		//improve_message_box = new MessageBox<MessageImprove>();
         		

@@ -29,6 +29,30 @@ run_queens() – runs an n queen problem (n is hard coded)
 *************************************************************************************/
 public class Flows {
 	
+
+	private static String random_input_dir = "random_input";
+	private static String out_dir = "output";
+	private static String hard_input_dir = "hard_input";
+	
+	// p for DSA parallel executation propablility 
+	private static double p_min = 0.1;
+	private static double p_max = 0.91;
+	private static double p_jump = 0.1;
+	
+	
+   // p for problem type generation
+   // "Play" with this to run with diffrent p1/p2 values
+   	
+   private static String input_dir_name = "input";
+	
+   private static double p2_min = 0.1;
+   private static double p2_max = 0.91;
+   private static double p2_jump = 0.05;
+   
+   private static double p1_min = 0.3;
+   private static double p1_max = 0.7;
+   private static double p1_jump = 0.4;
+   
 	/**
 	 * @param args
 	 */
@@ -36,16 +60,19 @@ public class Flows {
 		//run_queens("DBAAgent", 4, 20000);
 		//run_queens("DSA_A_Agent", 4, 2000);
 	    //run_gui_test("DSA_B_Agent", 10, 100);
-		run_gui_test("DBAAgent", 4, 100);
-	    //make_samples(50);
-		//run_tests(100, 1000, 0.2);
-		//run_example();
+	    
+		//run_gui_test("DBAAgent", 4, 100);
+	    //make_samples(70);
+		//run_tests(70, 1000, 0.3);
 		
-		//make_random_samples(100);
-		//run_random_tests(3, 500);
+		//make_random_samples(1500);
+		//run_random_tests(1500, 500);
+		
+		make_hard_samples(100);
+		run_hard_tests(100, 1000);
 	}
 	
-	
+
     /**
      * a driver for this demo
      */
@@ -87,9 +114,6 @@ public class Flows {
     }
 
 
-	private static String random_input_dir = "random_input";
-	private static String out_dir = "output";
-
 	public static void make_random_samples(int no_of_random_samples) {
 
 			
@@ -109,9 +133,7 @@ public class Flows {
 		}
 	}
 
-	private static double p_min = 0.1;
-	private static double p_max = 0.91;
-	private static double p_jump = 0.05;
+
 	
 	// used for printing results in both algorithms
 	private static String measure_names[] = {
@@ -285,18 +307,6 @@ public class Flows {
 
 }
 
-   // "Play" with this to run with diffrent p1/p2 values
-	
-	private static String input_dir_name = "input";
-	
-   private static double p2_min = 0.1;
-   private static double p2_max = 0.91;
-   private static double p2_jump = 0.05;
-   
-   private static double p1_min = 0.3;
-   private static double p1_max = 0.7;
-   private static double p1_jump = 0.2;
-   
 	//creates the problems in directory input
 	// make sure directory input exists before running
 	public static void make_samples(int samples_count) {
@@ -484,34 +494,194 @@ public static void run_tests(int samples_count, int cycle_count, double p) {
 			
 	}
 	
-	
-	
-	/*
-	
-	public static void run_example() {
+/***
+ * 
+ * @param no_of_random_samples
+ */
+
+
+public static void make_hard_samples(int no_of_random_samples) {
 
 		
-		Problem problem = new Problem(6,3, "example1.txt");
-		long start = System.currentTimeMillis();
-
-		Dbt_FC2_minDomain solver = new Dbt_FC2_minDomain(problem);
-		
-		if (solver.solve() == Definitions.StatOptions.SOLUTION)
-			solver.printV(System.out);
-		else 
-			System.out.println("There is no solution");
-		
-		long end = System.currentTimeMillis();
-		
-		System.out.println("Execution time was "+(end-start)+" ms.");
-		System.out.println("assignments =" + solver.assignments);
-		System.out.println("constraint checks =" + problem.constraint_checks);
-
-		problem.printProblem(System.out);
+	File input_dir = new File(hard_input_dir);
+	if ((! input_dir.isDirectory()) && (! input_dir.mkdir())) {
+		System.out.println("Error createing dir " + hard_input_dir);
+		System.exit(1);
 	}
-	*/
+	
+	for (int i = 0; i < no_of_random_samples; i++) {
+		String fileName = hard_input_dir + "/case." + i;
+		System.out.println("creating " + fileName);
+		// use a predicted phase transition point to find hard problems
+		Problem problem = new Problem(15, 10, 0.7,0.375);
+		problem.save2File(fileName);
+	}
+}
+
+
+
+
+
+public static void run_hard_tests(int no_of_random_samples,  int cycle_count) {
+	String agent_class_names[] = {
+		"DSA_A_Agent", "DSA_B_Agent", "DSA_C_Agent", "DSA_D_Agent", 
+		"DSA_E_Agent", "DBAAgent"  	    
+	};
+	
+	int num_of_p = 1 + (int) Math.ceil((p_max-p_min)/p_jump);
+	int num_of_alg = 2*agent_class_names.length;
+    int conflicts_at_end[][] = new int[num_of_alg][num_of_p]; // need to avrage at end
+    int failures[][] = new int[num_of_alg][num_of_p]; // when was there a solution but it was not found
+    int any_time_index[][] =   new int[num_of_alg][num_of_p]; 
+    int total_messages[][] = new int[num_of_alg][num_of_p]; 
+    int max_messages[][] = new int[num_of_alg][num_of_p]; 
+    int ncccs[][] = new int[num_of_alg][num_of_p]; 
+    int steps[][] = new int[num_of_alg][num_of_p]; 
+    
+    int solvable = 0;
+
+    // problem is defined out of loop in order to enable 
+    // getting n and d from it at the end when writing the report
+    Problem problem = null;
+
+	for (int i = 0; i < no_of_random_samples; i++) {
+		String inputFileName = random_input_dir + "/case." + i;
+		// read problem
+		problem = new Problem(inputFileName);
+			
+		// run FC_Cbj;
+		System.out.println("Running FC_Cbj for case case" + i);
+		FC_Cbj solver_FC_Cbj = new FC_Cbj(problem);
+			
+		Definitions.StatOptions fc_cbj_status = solver_FC_Cbj.bcssp();
+			
+		// verify solution
+		if (fc_cbj_status == Definitions.StatOptions.SOLUTION && ! solver_FC_Cbj.check_results()) {
+				System.out.println("Bug !!! FC-CBJ result is wrong");
+				System.exit(1);
+		}
+		
+		if (fc_cbj_status == Definitions.StatOptions.SOLUTION)
+			solvable++;
+			
+			
+
+		int p_index = 0;
+		for (double p = p_min; p <= p_max; p+= p_jump, p_index++) {
+			for (int alg_no = 0; alg_no < num_of_alg ; alg_no++) {
+					String alg_name = agent_class_names[alg_no%agent_class_names.length];
+					boolean any_time = false;
+					if (alg_no >= agent_class_names.length)
+						any_time = true;
+					
+					System.out.println("Running " + alg_name + " for case #" + i + " p is " + p + " any time is " + any_time);
+					AgentSolver solver = new AgentSolver(problem, alg_name, cycle_count, p, any_time);
+					solver.solve();	
+					
+					int conflicts = solver.count_conflicts();
+				    conflicts_at_end[alg_no][p_index] += conflicts;
+				    if ((fc_cbj_status == Definitions.StatOptions.SOLUTION) &&  (conflicts != 0))
+				    		failures[alg_no][p_index]++;
+				    any_time_index[alg_no][p_index] += solver.any_time_max_index;
+				    total_messages[alg_no][p_index] += solver.messages_sent; 
+				    max_messages[alg_no][p_index] += solver.max_messages_sent; 
+				    ncccs[alg_no][p_index] += solver.ncccs;
+				    steps[alg_no][p_index] += solver.steps;
+			} // end of alg loop
+		} // end of p loop	
+	} // end of i loop (go to next sample)
+
+	/********************
+     * print reports
+     ********************/ 		
 	
 	
+	int [][] measure_arrays[] = {
+			conflicts_at_end,
+			failures,
+			any_time_index,
+			total_messages,
+			max_messages,
+			ncccs,
+			steps
+	};
+	
+
+	
+	// make output dir
+	File output_dir = new File(out_dir);
+	if ((! output_dir.isDirectory()) && (! output_dir.mkdir())) {
+		System.out.println("Error createing dir " + output_dir);
+		System.exit(1);
+	}
+	
+	String reportFileName = out_dir + "/hard_report" +  "_N#" + problem.getN() + "_D#" + problem.getD() + ".xls";
+
+	WritableCellFormat cf = new WritableCellFormat(new NumberFormat("#,##0.00"));
+	
+	try{
+		// create the xls file
+		WritableWorkbook workbook = Workbook.createWorkbook(new File(reportFileName));
+		WritableSheet sheet;
+
+		
+		int sheet_no=0;
+		
+		
+		for (int m=0; m < measure_arrays.length; m++) {
+			sheet = workbook.createSheet(measure_names[m], sheet_no++);
+			Label label =  new Label(0, 0, "p");
+			sheet.addCell(label);
+			
+			for (int alg_no = 0; alg_no < num_of_alg ; alg_no++) {
+				String alg_name = agent_class_names[alg_no%agent_class_names.length];
+				if (alg_no >= agent_class_names.length) {
+					alg_name = alg_name + "_any_time";
+				}
+				
+			    label = new Label(alg_no+1, 0, alg_name);
+				sheet.addCell(label);
+			}
+		
+		    int p_index = 0;
+			for (double p = p_min; p <= p_max; p+= p_jump, p_index++)  {
+				Number number = new Number(0,p_index+1,p);
+				sheet.addCell(number);
+			
+				for (int alg_no = 0; alg_no < num_of_alg ; alg_no++) {
+					String alg_name = agent_class_names[alg_no%agent_class_names.length];
+					if (alg_no >= agent_class_names.length) {
+						alg_name = alg_name + "_any_time";
+					}
+			
+					if (measure_names[m].equals("failures")) {
+						number = new Number(alg_no+1, p_index+1, failures[alg_no][p_index]);
+					}
+					else {
+						number = new Number(alg_no+1, p_index+1, (double) measure_arrays[m][alg_no][p_index]/(double) no_of_random_samples);
+						number.setCellFormat(cf);
+					}
+					sheet.addCell(number);
+				}
+				
+				if (measure_names[m].equals("failures")) {
+					number = new Number(num_of_alg+1, p_index+1, solvable);
+					sheet.addCell(number);
+
+				}
+			}
+		}	
+			
+		workbook.write();
+		workbook.close();
+	}
+	catch (Exception e) {
+		System.out.println("problem with file excel api" + reportFileName );
+		e.printStackTrace();
+		//System.exit(1);
+	}
+
+}
 	public static void run_queens(String AgentAlgorith,int queens_count, int cycle_count) {
 		//Problem problem = new Problem(15,10, 0.5, 0.5);
 		// problem.save2File("input/problem.data1");

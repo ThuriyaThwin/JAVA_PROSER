@@ -1,3 +1,4 @@
+package agents;
 
 /*****************************************************************************************
  * Class: AbstractAgent
@@ -9,26 +10,28 @@
 
 
 
-import general.Problem;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import messages.MessageOK;
+import messages.MessageOKAnyTime;
+import messages.MessageOKAnyTime2Parent;
+import messages.MessageOKAnyTime2Son;
+
 
 public abstract class AbstractAgent implements Runnable{
-	protected int id; // the id of current agent
+	public int id; // the id of current agent (public so solver can see it)
 	protected int[][] weight_table[]; // how much does each conflict cost
 	protected int agent_view[]; // agent view for neighbors
 	                                              // tree map will enable going over only part of children
 	protected int d;
-	protected int n;
-	protected int value;   
+	protected int n; // n is needed relay only for DBA termination counter
+	public int value;   
 	public int step_no;    // what cycle was reached?
 	protected int max_cycles;    // after how many cycles to terminate if solution not found?
 	public int messages_sent;  // how many messages did current agent send
 	public int ncccs;          // What is the NCCCS of current agent
-	protected Problem problem;
 	protected double p; // the probability to change the current value is actualy used only by DSA
 						// but we are setting it in all agents in order to enable common interface 
 	protected int no_of_neighbors; // for fast looping over all neighbors
@@ -62,12 +65,11 @@ public abstract class AbstractAgent implements Runnable{
 	                           // for children if the got terminate message from parent
 	int termination_count;
 
-	public AbstractAgent(int id, Problem problem, int max_cycles, boolean any_time) {
-		d = problem.getD();
-		n = problem.getN();
+	public AbstractAgent(int id, int max_cycles, double p, boolean any_time, int d, int n) {
+		this.d = d;
+		this.n = n;
 		this.max_cycles = max_cycles;
 		this.id = id;
-		this.problem = problem;
 		termination_counter = 0;
 		consistent = false;
 		this.any_time = any_time;
@@ -264,10 +266,10 @@ public abstract class AbstractAgent implements Runnable{
 		//TODO
 		// This is the place where automatic termination can be set on and off
 		// it is a good Idea to move it to be part of the class
-		if (terminate)
-			if (termination_count-- == 0) {
-				completed = true;
-			}
+//		if (terminate)
+//			if (termination_count-- == 0) {
+//				completed = true;
+//			}
 		
 	}
 	

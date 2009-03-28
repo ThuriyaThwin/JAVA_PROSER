@@ -1,20 +1,23 @@
+package agents;
 
 import general.Problem;
+import messages.*;
+import agents.*;
 
 import com.sosnoski.util.stack.IntStack;
 
 
 public class DBAAgent extends AbstractAgent {
 
-	MessageBox<MessageImprove> improve_message_box; 
+	public MessageBox<MessageImprove> improve_message_box; 
 	boolean quasi_local_minimum = false;
 	boolean can_move = false;
 	IntStack coflicting_vars;  // TODO: this saves constraint checks but maybe should be counted
 	int new_value;
 	int my_improve;	
 
-	public DBAAgent(int id, Problem problem, int max_cycles, boolean any_time) {
-		super(id, problem, max_cycles, any_time);
+	public DBAAgent(int id, int max_cycles, double p, boolean any_time, int d, int n) {
+		super(id, max_cycles, p, any_time, d, n);
 
 		improve_message_box = new MessageBox<MessageImprove>();
         

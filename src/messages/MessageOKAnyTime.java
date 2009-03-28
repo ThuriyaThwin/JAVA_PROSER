@@ -1,3 +1,5 @@
+package messages;
+
 
 public class MessageOKAnyTime extends MessageOK{
 

@@ -13,6 +13,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import messages.*;
+import agents.*;
+
+
 
 import jung_addtions.BFSTreeCreator;
 
@@ -65,13 +69,13 @@ public class AgentSolver {
 		agents = new AbstractAgent[n];
 		for (int i = 0; i < n; i++) {
 			try {
-				Class cls =  Class.forName(agentType);	    
+				Class cls =  Class.forName("agents." + agentType);	 
 			    Constructor ct[] = cls.getDeclaredConstructors();
-			    //agents[i] = new DBAAgent(i, problem, max_cycles, agents);
-			    agents[i] = (AbstractAgent) ct[0].newInstance(i, problem, max_cycles, p, use_any_time);
+			    agents[i] =  (AbstractAgent) ct[0].newInstance(i, max_cycles, p, use_any_time, d, n);
 		    }
 		    catch (Throwable e) {
-		      System.err.println(e);
+		      System.err.println(e.getLocalizedMessage());
+		      e.printStackTrace();
 		      System.exit(1);
 		    }
 

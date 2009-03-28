@@ -1,3 +1,8 @@
+package agents;
+
+import messages.*;
+
+
 
 public class DBAAgentInfo extends AgentInfo {
 	public MessageBox<MessageImprove> improve_message_box;

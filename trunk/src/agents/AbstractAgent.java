@@ -1,24 +1,30 @@
+
+/**
+ * @author Miriam k.
+ * @author Elad l.
+ */
+
+
 package agents;
-
-/*****************************************************************************************
- * Class: AbstractAgent
- * 
- * This call implements methods that are common to all agent types
- * it handles any time required parameters
- * The decision whether or not the agent is an "anytime" agent is determined by constructor
- *****************************************************************************************/
-
-
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-
 import messages.MessageOK;
 import messages.MessageOKAnyTime;
 import messages.MessageOKAnyTime2Parent;
 import messages.MessageOKAnyTime2Son;
 
+
+
+/**
+ * Class: AbstractAgent
+ * This call implements methods that are common to all agent types
+ * it handles any time required parameters
+ * The decision whether or not the agent is an "anytime" agent is determined by constructor
+ * @see DBAAgent
+ * @see DSAAgent
+ */
 
 public abstract class AbstractAgent implements Runnable{
 	public int id; // the id of current agent (public so solver can see it)
@@ -65,6 +71,15 @@ public abstract class AbstractAgent implements Runnable{
 	                           // for children if the got terminate message from parent
 	int termination_count;
 
+	/**
+	 * 
+	 * @param id
+	 * @param max_cycles
+	 * @param p
+	 * @param any_time
+	 * @param d
+	 * @param n
+	 */
 	public AbstractAgent(int id, int max_cycles, double p, boolean any_time, int d, int n) {
 		this.d = d;
 		this.n = n;
@@ -83,7 +98,12 @@ public abstract class AbstractAgent implements Runnable{
 		termination_count = Integer.MAX_VALUE;
 
 	}
-	
+	/**
+	 * 
+	 * @param neighbors
+	 * @param larger_neighbors_index
+	 * @param weight_table
+	 */
 	public void init (AgentInfo neighbors[], int larger_neighbors_index, int[][] weight_table[] ){
 		this.neighbors = neighbors;
 		no_of_neighbors = neighbors.length;
@@ -108,7 +128,10 @@ public abstract class AbstractAgent implements Runnable{
 		return result;
 		
 	}
-	
+	/**
+	 * toString
+	 * @return the string representation as html tag.
+	 */
 	public String toString()
 	{
 		String my_str;
@@ -117,14 +140,26 @@ public abstract class AbstractAgent implements Runnable{
 		return my_str;
 	}
 	
+	/**
+	 * get_id
+	 * @return id
+	 */
 	public int get_id() {
 		return id;
 	}
 	
+	/**
+	 * sets the bfs parent
+	 * @param parent_id
+	 */
 	public void set_bfs_parent(int parent_id) {
 		bfs_parent_id = parent_id;
 	}
 	
+	/**
+	 * adds bfs child
+	 * @param child_id
+	 */
 	public void add_bfs_child(int child_id) {
          if (bfs_children == null)
         	 bfs_children = new HashSet<Integer>();
@@ -132,6 +167,11 @@ public abstract class AbstractAgent implements Runnable{
          bfs_children.add(child_id);
 	}
 	
+	/**
+	 * sets bfs params
+	 * @param dist
+	 * @param height
+	 */
 	public void set_bfs_params (int dist, int height) {
 		bfs_height = height;
 		bfs_dist = dist;
@@ -154,7 +194,12 @@ public abstract class AbstractAgent implements Runnable{
         bfs_children = new HashSet<Integer>();
 	}
 	
-
+	/**
+	 * send OK msg (one of MessageOKAnyTime, MessageOK) to the agent neighbors.
+	 * (uses any_time_send_ok()).
+	 * @see MessageOK
+	 * @see any_time_send_ok
+	 */
 	protected void send_ok() {			
 		step_no++;
 		
@@ -171,6 +216,9 @@ public abstract class AbstractAgent implements Runnable{
 		}
 	}
 	
+	/**
+	 * sends the MessageOKAnyTime to the agent neighbors.
+	 */
 	public void any_time_send_ok() {
 		
 		MessageOKAnyTime message = new MessageOKAnyTime(id, value, terminate);
@@ -203,7 +251,9 @@ public abstract class AbstractAgent implements Runnable{
 		
 		
 	}
-	
+	/**
+	 * waits of all neighbors ok reply
+	 */
 	protected void read_neighbors_ok(){
 
 		if (any_time) {
@@ -217,6 +267,10 @@ public abstract class AbstractAgent implements Runnable{
 		}
 	}
 	
+	/**
+	 * waits of all neighbors MessageOKAnyTime reply
+	 * @see MessageOKAnyTime
+	 */
 	public void any_time_read_neighbors_ok() {
 			
 		int i = step_no - bfs_height + 1;
@@ -277,7 +331,11 @@ public abstract class AbstractAgent implements Runnable{
 			}
 		
 	}
-	
+	/**
+	 * evalueate
+	 * @param current_val
+	 * @return
+	 */
 	protected int evalueate(int current_val) {
 		int eval = 0;
 		for (int i=0; i < no_of_neighbors; i++) {
@@ -289,6 +347,9 @@ public abstract class AbstractAgent implements Runnable{
 		return eval;
 	}
 	
+	/**
+	 * run function - runs the do alg of the derived classes
+	 */
 	public void run() {
 		// if there are no conflicts then the first value can be selected and nothing needs to be checked
 		if (no_of_neighbors == 0) {
@@ -303,7 +364,9 @@ public abstract class AbstractAgent implements Runnable{
         }
 		
 	}
-	
+	/**
+	 * post_alg_steps
+	 */
 	public void post_alg_steps() {
         for (int k = 0; k < (bfs_dist + bfs_height) ; k++) {
         	step_no++;
@@ -338,7 +401,12 @@ public abstract class AbstractAgent implements Runnable{
 
         }
 	}
-	
+		
+	/**
+	 * return true iff the other object is the same to "this".
+	 * @param other
+	 * @return
+	 */
 	public boolean equals(Object other) {
 		AbstractAgent otherVar = (AbstractAgent)  other;
 	      

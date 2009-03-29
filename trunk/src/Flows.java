@@ -60,19 +60,18 @@ public class Flows {
 	public static void main(String[] args) {
 		//run_queens("DBAAgent", 4, 20000);
 		//run_queens("DSA_A_Agent", 4, 2000);
-	    //run_gui_test("DSA_B_Agent", 10, 100);
-	   
-		//run_gui_test("DBAAgent", 4, 100);
+	    //run_gui_test("DSA_B_Agent", 10, 100, false);
+		//run_gui_test("DBAAgent", 4, 100, true);
 
 		 //make_samples(60);
-		 run_tests(60, 500, 0.3);
+		 run_tests(60, 500, 0.05);
 		 
 		 //make_hard_samples(100);
-		 run_hard_tests(60, 700);
+		 //run_hard_tests(60, 700);
 	    
 		
 		//make_random_samples(1000);
-		run_random_tests(1500, 500);
+		//run_random_tests(1500, 500);
 		
 	}
 	
@@ -83,7 +82,7 @@ public class Flows {
      * @param queens_count
      * @param cycle_count
      */
-    public static void run_gui_test(String AgentAlgorith, int queens_count, int cycle_count) {
+    public static void run_gui_test(String AgentAlgorith, int queens_count, int cycle_count, boolean any_time) {
         JFrame f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
@@ -91,7 +90,7 @@ public class Flows {
         //Problem problem = new Problem(10, 10, 0.1,0.5);
         //problem.save2File("problem_save.prb");
         //Problem problem = new Problem("problem_save.prb");
-		AgentSolver solver = new AgentSolver(problem, AgentAlgorith, cycle_count, 0.1, true);
+		AgentSolver solver = new AgentSolver(problem, AgentAlgorith, cycle_count, 0.1, any_time);
 		
         f.setLayout(new GridLayout(1,2));
         f.getContentPane().add(solver.get_panel());
@@ -535,9 +534,9 @@ public class Flows {
 	
 /***
  * 
- * @param no_of_random_samples
+ * @param no_of_samples
  */
-public static void make_hard_samples(int no_of_random_samples) {
+public static void make_hard_samples(int no_of_samples) {
 
 		
 	File input_dir = new File(hard_input_dir);
@@ -546,7 +545,7 @@ public static void make_hard_samples(int no_of_random_samples) {
 		System.exit(1);
 	}
 	
-	for (int i = 0; i < no_of_random_samples; i++) {
+	for (int i = 0; i < no_of_samples; i++) {
 		String fileName = hard_input_dir + "/case." + i;
 		System.out.println("creating " + fileName);
 		// use a predicted phase transition point to find hard problems
@@ -558,11 +557,9 @@ public static void make_hard_samples(int no_of_random_samples) {
 
 
 
-
-
 /**
  * 
- * @param no_of_random_samples
+ * @param no_of_samples
  * @param cycle_count
  * 
  * @see DSA_A_Agent
@@ -572,7 +569,7 @@ public static void make_hard_samples(int no_of_random_samples) {
  * @see DSA_E_Agent
  * @see DBAAgent
  */
-public static void run_hard_tests(int no_of_random_samples,  int cycle_count) {
+public static void run_hard_tests(int no_of_samples,  int cycle_count) {
 	String agent_class_names[] = {
 		"DSA_A_Agent", "DSA_B_Agent", "DSA_C_Agent", "DSA_D_Agent", 
 		"DSA_E_Agent", "DBAAgent"  	    
@@ -594,7 +591,7 @@ public static void run_hard_tests(int no_of_random_samples,  int cycle_count) {
     // getting n and d from it at the end when writing the report
     Problem problem = null;
 
-	for (int i = 0; i < no_of_random_samples; i++) {
+	for (int i = 0; i < no_of_samples; i++) {
 		String inputFileName = hard_input_dir + "/case." + i;
 		// read problem
 		problem = new Problem(inputFileName);
@@ -708,7 +705,7 @@ public static void run_hard_tests(int no_of_random_samples,  int cycle_count) {
 						number = new Number(alg_no+1, p_index+1, failures[alg_no][p_index]);
 					}
 					else {
-						number = new Number(alg_no+1, p_index+1, (double) measure_arrays[m][alg_no][p_index]/(double) no_of_random_samples);
+						number = new Number(alg_no+1, p_index+1, (double) measure_arrays[m][alg_no][p_index]/(double) no_of_samples);
 						number.setCellFormat(cf);
 					}
 					sheet.addCell(number);

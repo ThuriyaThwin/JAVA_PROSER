@@ -1,9 +1,15 @@
+
+/**
+ * @author Miriam k.
+ * @author Elad l.
+ */
+
+
 package general;
 
 /**
  * This is an inetface uses to define constants
  * Created Feb 2009
- * @author Miriam Kreisler
  */
 public interface Definitions {
 

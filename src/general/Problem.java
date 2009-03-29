@@ -1,3 +1,11 @@
+
+/**
+ * @author Miriam k.
+ * @author Elad l.
+ */
+
+
+
 package general;
 /* hello world this is a test mark */
 import java.io.*;
@@ -12,6 +20,11 @@ import java.io.*;
 import javax.swing.JOptionPane;
 import com.sosnoski.util.stack.IntStack;
 
+/**
+ * Implements a CSP 
+ * @author user
+ *
+ */
 public class Problem implements Serializable {
 
 	private int n;  // number of variable in problem
@@ -38,8 +51,15 @@ public class Problem implements Serializable {
 	static final long serialVersionUID = 42L;  // this is needed in order to save samples to disk
 
 	
-	// create an instance of a problem with n variables and domain size d
-    public Problem(int n, int d, double p1, double p2) {
+	/**
+	 * create an instance of a problem with n variables and domain size d
+	 * @param n
+	 * @param d
+	 * @param p1
+	 * @param p2
+	 */
+    
+	public Problem(int n, int d, double p1, double p2) {
     
        init(n,d);
     	
@@ -79,8 +99,11 @@ public class Problem implements Serializable {
     	}
     }
     
-   // create an queens instance
-    public Problem(int n) {
+   /**
+    * create an queens instance
+    * @param n
+    */
+	public Problem(int n) {
     	
         init(n,n);
     	
@@ -102,11 +125,19 @@ public class Problem implements Serializable {
     	
     }
    
-    public int getN() {
+    /**
+     * 
+     * @return n
+     */
+	public int getN() {
     	return n;
     }
     
-    public int getD() {
+    /**
+     * 
+     * @return d
+     */
+	public int getD() {
     	return d;
     }
   
@@ -148,7 +179,11 @@ public class Problem implements Serializable {
     	
     }
     
-    // this is common to all the constructors 
+    /**
+     * this is common to all the constructors 
+     * @param n
+     * @param d
+     */
 	private void init(int n, int d) {
 	  	this.n = n;
     	this.d = d;
@@ -158,7 +193,12 @@ public class Problem implements Serializable {
 	}
 
 	
-	// read the lines from a file in the format that was given in examples
+	/**
+	 * read the lines from a file in the format that was given in examples
+	 * @param v1
+	 * @param v2
+	 * @param line
+	 */
     private void setConstraintsFromLine(int v1, int v2, String line) {
 		 int colon_location = line.indexOf(':');
 		 String val1_str = line.substring(colon_location-1,colon_location);
@@ -184,7 +224,12 @@ public class Problem implements Serializable {
  	
     }
     
-    // load from a file
+    /**
+     *  load from a file
+     * @param n
+     * @param d
+     * @param fileName
+     */
     public Problem(int n, int d,String fileName) {
     	BufferedReader input = null;
     	

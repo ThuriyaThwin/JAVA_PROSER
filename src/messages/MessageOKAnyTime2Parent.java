@@ -1,6 +1,6 @@
 package messages;
 
-
+//This is the message the will be sent to BFS parent when Any Time is implemented
 public class MessageOKAnyTime2Parent extends MessageOKAnyTime {
 	public int cost_i;
 	public int step_no;

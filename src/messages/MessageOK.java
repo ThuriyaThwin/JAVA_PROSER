@@ -1,5 +1,6 @@
 package messages;
 
+// this is uses when anytime is not set
 public class MessageOK {
 
 	public int id; // the id of sender

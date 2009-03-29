@@ -311,8 +311,8 @@ public class AgentSolver {
 	public int count_conflicts() {
 		int conflicts = 0;
 
-		for (int i = 0; i < problem.getN(); i++) {
-			for (int j = i+1; j < problem.getN(); j++) {
+		for (int i = 0; i < n; i++) {
+			for (int j = i+1; j < n; j++) {
 				if (! problem.check(i, v[i], j, v[j])) {
 					conflicts++;
 				}

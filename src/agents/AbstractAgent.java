@@ -224,11 +224,16 @@ public abstract class AbstractAgent implements Runnable{
 		for(int neighbor_index = 0; neighbor_index < no_of_neighbors; neighbor_index++) {
 			MessageOKAnyTime message = (MessageOKAnyTime) neighbors[neighbor_index].ok_message_box_in.read_message();
 			
-			agent_view[neighbor_index] = message.current_value;
+			if (terminate)  // after reaching terminate we don't need the info in messages any more 
+				continue;
+			
 			if (message.terminate == true) {
 				terminate = true;
 				termination_count = this.bfs_height;
 			}
+			
+			agent_view[neighbor_index] = message.current_value;
+
 			
 			if (message.id == bfs_parent_id) {
 				MessageOKAnyTime2Son parent_message = (MessageOKAnyTime2Son) message;
@@ -266,10 +271,10 @@ public abstract class AbstractAgent implements Runnable{
 		//TODO
 		// This is the place where automatic termination can be set on and off
 		// it is a good Idea to move it to be part of the class
-//		if (terminate)
-//			if (termination_count-- == 0) {
-//				completed = true;
-//			}
+		if (terminate)
+			if (termination_count-- == 0) {
+				completed = true;
+			}
 		
 	}
 	
@@ -291,7 +296,7 @@ public abstract class AbstractAgent implements Runnable{
 		}
 		else {
 	        do_alg(max_cycles + bfs_dist + bfs_height);
-	        if (any_time && termination_count != 0) {
+	        if (any_time && (termination_count != 0)) {
 	           post_alg_steps();
 	           value = best;
 	        }   

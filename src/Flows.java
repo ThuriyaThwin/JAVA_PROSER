@@ -60,16 +60,19 @@ public class Flows {
 		//run_queens("DBAAgent", 4, 20000);
 		//run_queens("DSA_A_Agent", 4, 2000);
 	    //run_gui_test("DSA_B_Agent", 10, 100);
-	    
+	   
 		//run_gui_test("DBAAgent", 4, 100);
-	    //make_samples(70);
-		//run_tests(70, 1000, 0.3);
+
+		 //make_samples(60);
+		 run_tests(60, 500, 0.3);
+		 
+		 //make_hard_samples(100);
+		 run_hard_tests(60, 700);
+	    
 		
-		//make_random_samples(1500);
-		//run_random_tests(1500, 500);
+		//make_random_samples(1000);
+		run_random_tests(1500, 500);
 		
-		make_hard_samples(100);
-		run_hard_tests(100, 1000);
 	}
 	
 
@@ -513,7 +516,8 @@ public static void make_hard_samples(int no_of_random_samples) {
 		String fileName = hard_input_dir + "/case." + i;
 		System.out.println("creating " + fileName);
 		// use a predicted phase transition point to find hard problems
-		Problem problem = new Problem(15, 10, 0.7,0.375);
+		//Problem problem = new Problem(15, 10, 0.7,0.375);
+		Problem problem = new Problem(15, 10, 0,0);
 		problem.save2File(fileName);
 	}
 }
@@ -545,7 +549,7 @@ public static void run_hard_tests(int no_of_random_samples,  int cycle_count) {
     Problem problem = null;
 
 	for (int i = 0; i < no_of_random_samples; i++) {
-		String inputFileName = random_input_dir + "/case." + i;
+		String inputFileName = hard_input_dir + "/case." + i;
 		// read problem
 		problem = new Problem(inputFileName);
 			

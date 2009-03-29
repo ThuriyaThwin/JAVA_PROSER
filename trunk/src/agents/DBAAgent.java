@@ -6,11 +6,9 @@
 
 
 package agents;
-import general.Problem;
 import messages.*;
-import agents.*;
 
-import com.sosnoski.util.stack.IntStack;
+
 
 
 /**
@@ -24,7 +22,6 @@ public class DBAAgent extends AbstractAgent {
 	public MessageBox<MessageImprove> improve_message_box; 
 	boolean quasi_local_minimum = false;
 	boolean can_move = false;
-	IntStack coflicting_vars;  // TODO: this saves constraint checks but maybe should be counted
 	int new_value;
 	int my_improve;	
 
@@ -60,14 +57,6 @@ public class DBAAgent extends AbstractAgent {
 			
 			if (step_no == cycles)
 				completed=true;
-			// TODO : need to be remove (?)
-			/*
-			try {
-				Thread.sleep(1);
-			}
-			catch (InterruptedException e){
-				
-			}*/
 	   }
 	}
 	
@@ -114,7 +103,7 @@ public class DBAAgent extends AbstractAgent {
 	 * @see MessageImprove
 	 * @see DBAAgentInfo
 	 */
-	@SuppressWarnings("unchecked")
+	
 	private void send_improve() {
 		int current_eval = dba_evalueate(value);
 		int best_eval = current_eval;

@@ -4,9 +4,7 @@
  * @author Elad l.
  */
 
-
 package agents;
-import general.Problem;
 
 
 /**

@@ -29,8 +29,7 @@ public class Problem implements Serializable {
 
 	private int n;  // number of variable in problem
 	private int d;  // size of domain 
-	private double p1;
-	private double p2;
+
 	
 	public int constraint_checks;  // number of constrain checks done
 	                               // is incremented when check is called

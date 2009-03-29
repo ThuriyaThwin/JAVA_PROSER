@@ -7,8 +7,6 @@
 
 package agents;
 
-import general.Problem;
-
 import java.util.Random;
 
 /**

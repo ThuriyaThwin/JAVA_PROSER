@@ -6,8 +6,6 @@
 
 
 package agents;
-import general.Problem;
-
 
 /**
  * DSA_C_Agent extends DSAAgent.

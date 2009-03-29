@@ -4,10 +4,7 @@
  * @author Elad l.
  */
 
-
 package agents;
-import general.Problem;
-
 
 /**
  * DSA_D_Agent extends DSAAgent.

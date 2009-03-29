@@ -6,7 +6,6 @@
 
 
 package agents;
-import general.Problem;
 
 
 /**

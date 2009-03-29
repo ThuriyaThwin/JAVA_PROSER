@@ -105,7 +105,6 @@ public class AgentSolver {
 			// find i's neighbors (and count them)
 			for (int j = 0; j < n; j++) {
 				if (j == i) {
-					//TODO check if need +1 
 					larger_neighbors_index_array[i] = no_of_neighbors;
 					continue;
 				}
@@ -126,7 +125,7 @@ public class AgentSolver {
 		for (int i = 0; i < agents.length; i++) {
 			int num_of_neighbors = message_boxes[i].length;
 			
-			// TODO may be able to remove this if
+			// TODO may be able to remove this 
 			AgentInfo neighbor_info_array[] = null;
 			if (! agentType.equals("DBAAgent")) {
 				neighbor_info_array = new AgentInfo[num_of_neighbors];

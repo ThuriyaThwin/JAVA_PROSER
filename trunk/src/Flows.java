@@ -4,15 +4,10 @@ import general.Definitions;
 import general.Problem;
 import java.awt.GridLayout;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-import java.lang.reflect.Constructor;
 
 import javax.swing.JFrame;
 
 import prosser.FC_Cbj;
-import jxl.format.*;
-import jxl.format.CellFormat;
 import jxl.*;
 import jxl.write.*;
 import jxl.write.Number;
@@ -64,12 +59,11 @@ public class Flows {
 		//run_gui_test("DBAAgent", 4, 100, true);
 
 		 //make_samples(60);
-		 run_tests(60, 500, 0.05);
+		 //run_tests(60, 500, 0.05);
 		 
-		 //make_hard_samples(100);
-		 //run_hard_tests(60, 700);
+		 make_hard_samples(300);
+		 run_hard_tests(300, 1000);
 	    
-		
 		//make_random_samples(1000);
 		//run_random_tests(1500, 500);
 		
@@ -329,8 +323,7 @@ public class Flows {
 		catch (Exception e) {
 			System.out.println("problem with file excel api" + reportFileName );
 			e.printStackTrace();
-			// TODO need to bo deleted (?)
-			//System.exit(1);
+			System.exit(1);
 		}
 
 }
@@ -500,7 +493,6 @@ public class Flows {
 						sheet.addCell(number);
 					
 						for (int alg_no = 0; alg_no < num_of_alg ; alg_no++) {
-							String alg_name = agent_class_names[alg_no];
 					
 							if (measure_names[m].equals("failures")) {
 								number = new Number(alg_no+1, p2_index+1, failures[alg_no][p1_index][p2_index]);
@@ -549,8 +541,7 @@ public static void make_hard_samples(int no_of_samples) {
 		String fileName = hard_input_dir + "/case." + i;
 		System.out.println("creating " + fileName);
 		// use a predicted phase transition point to find hard problems
-		//Problem problem = new Problem(15, 10, 0.7,0.375);
-		Problem problem = new Problem(15, 10, 0,0);
+		Problem problem = new Problem(15, 10, 0.7,0.375);
 		problem.save2File(fileName);
 	}
 }

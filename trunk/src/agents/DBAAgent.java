@@ -1,5 +1,11 @@
-package agents;
 
+/**
+ * @author Miriam k.
+ * @author Elad l.
+ */
+
+
+package agents;
 import general.Problem;
 import messages.*;
 import agents.*;
@@ -7,6 +13,12 @@ import agents.*;
 import com.sosnoski.util.stack.IntStack;
 
 
+/**
+ * 
+ * Implements the DBA agent
+ * @see AbstractAgent
+ * @see MessageBox
+ */
 public class DBAAgent extends AbstractAgent {
 
 	public MessageBox<MessageImprove> improve_message_box; 
@@ -16,6 +28,15 @@ public class DBAAgent extends AbstractAgent {
 	int new_value;
 	int my_improve;	
 
+	/**
+	 * 
+	 * @param id
+	 * @param max_cycles
+	 * @param p
+	 * @param any_time
+	 * @param d
+	 * @param n
+	 */
 	public DBAAgent(int id, int max_cycles, double p, boolean any_time, int d, int n) {
 		super(id, max_cycles, p, any_time, d, n);
 
@@ -23,6 +44,11 @@ public class DBAAgent extends AbstractAgent {
         
 	}
 	
+	/**
+	 * The main alg part
+	 * @param cycles
+	 * 
+	 */
 	public void do_alg(int cycles) {
 		while (! completed) {
 			dba_send_ok();	
@@ -34,7 +60,7 @@ public class DBAAgent extends AbstractAgent {
 			
 			if (step_no == cycles)
 				completed=true;
-		
+			// TODO : need to be remove (?)
 			/*
 			try {
 				Thread.sleep(1);
@@ -45,6 +71,10 @@ public class DBAAgent extends AbstractAgent {
 	   }
 	}
 	
+	/**
+	 * dba_send_ok
+	 * @see send_ok
+	 */
 	private void dba_send_ok() {
 		if (consistent) {
 			termination_counter++;
@@ -72,10 +102,18 @@ public class DBAAgent extends AbstractAgent {
 		
 	}
 	
+	/**
+	 * @see read_neighbors_ok
+	 */
 	private void wait_ok() {
 		read_neighbors_ok();
 	}
 	
+	/**
+	 *
+	 * @see MessageImprove
+	 * @see DBAAgentInfo
+	 */
 	@SuppressWarnings("unchecked")
 	private void send_improve() {
 		int current_eval = dba_evalueate(value);
@@ -121,6 +159,10 @@ public class DBAAgent extends AbstractAgent {
 		}
 	}
 	
+	/**
+	 * @see MessageImprove
+	 * 
+	 */
 	private void wait_improve() {
 		for(int counter = 0; counter < no_of_neighbors; counter++) {
 			MessageImprove message = improve_message_box.read_message();
@@ -143,6 +185,11 @@ public class DBAAgent extends AbstractAgent {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param current_val
+	 * @return the evel
+	 */
 	protected int dba_evalueate(int current_val) {
 		int eval = 0;
 		for (int i=0; i < no_of_neighbors; i++) {

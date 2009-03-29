@@ -1,48 +1,73 @@
+
+/**
+ * @author Miriam k.
+ * @author Elad l.
+ */
+
+
 package agents;
 
 import general.Problem;
 
 import java.util.Random;
 
+/**
+ * 
+ * DSAAgent extends AbstractAgent
+ * Implements the DSAAgent.
+ * 
+ * @see AbstractAgent
+ *
+ */
 abstract public class DSAAgent extends AbstractAgent {
 	int current_conflicts_count;
 	int delta;
 
 	boolean is_improve = false;
 	Random rand_generator;
-	int seed = 4;
 	
+	/**
+	 * 
+	 * @param id
+	 * @param max_cycles
+	 * @param p
+	 * @param any_time
+	 * @param d
+	 * @param n
+	 */
 	public DSAAgent(int id, int max_cycles, double p,  boolean any_time, int d, int n) {
 		super(id, max_cycles, p, any_time, d, n);
-
-		//improve_message_box = new MessageBox<MessageImprove>();
-        		
-		//rand_generator = new Random(seed);
 		rand_generator = new Random();
 		value = rand_generator.nextInt(d); 
 		current_conflicts_count = evalueate(value); 
 		delta = current_conflicts_count; 
 	}
 	
+	/**
+	 * The main alg part
+	 * @param cycles
+	 * 
+	 */
 	public void do_alg(int cycles) {
 		while (! completed) {
-			//System.out.println("doing cycle");
 			send_ok(); 
 			wait_ok(); 
 			if (step_no == cycles)
 				completed=true;
 
 	   }
-		//System.out.println("after the run function");
 	}
 			
 	
+	/**
+	 * 
+	 * @return a new value (the lowest delta value) a new value (the lowest delta value)
+	 * if there is one. otherwise the current value.
+	 * also updates the delta.
+	 */
 	protected int get_lowest_delta_value(){
 		/*
-		 * returns a new value (the lowest delta value)
-		 * if there is one. 
-		 * otherwise the current value.
-		 * also updates the delta. 
+		 * returns  
 		 * */
 		
 		is_improve = false;
@@ -66,6 +91,11 @@ abstract public class DSAAgent extends AbstractAgent {
 	}
 	
 	
+	/**
+	 * change the current value with probability of p.
+	 * @param v
+	 * @param p
+	 */
 	protected void change_value_with_prob(int v,double p){
 		int i = rand_generator.nextInt(100);
 		
@@ -75,8 +105,24 @@ abstract public class DSAAgent extends AbstractAgent {
 		}
 	}
 	
+	/**
+	 * abstract select_next_value.
+	 * Implemened by each of the DBAs
+	 * @param delta
+	 * @param v
+	 * @param p
+	 * 
+	 * @see DSA_A_Agent
+	 * @see DSA_B_Agent
+	 * @see DSA_C_Agent
+	 * @see DSA_D_Agent
+	 * @see DSA_E_Agent
+	 */
 	abstract void select_next_value(int delta, int v, double p); 
 	
+	/**
+	 * waits of the neighbors ok mgs, and select the next value.
+	 */
 	protected void wait_ok() {
 		read_neighbors_ok();
 		int v = get_lowest_delta_value();

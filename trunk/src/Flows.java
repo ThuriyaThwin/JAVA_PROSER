@@ -19,16 +19,17 @@ import jxl.write.Number;
 
 
 /************************************************************************************
-This class contains the main running flows
-make_samples() and run_tests() should be run.
-
-make_sampes() – creates the problems in directory input
-run_tests() – runs FC-CBJ and FC-CBJ-DAC and prints the results to files
-run_queens() – runs an n queen problem (n is hard coded)
 
 *************************************************************************************/
+
+/**
+ * This class contains the main running flows
+ * make_samples() and run_tests() should be run.
+ * make_sampes() – creates the problems in directory input
+ * run_tests() – runs FC-CBJ and FC-CBJ-DAC and prints the results to files
+ * run_queens() – runs an n queen problem (n is hard coded)
+ */
 public class Flows {
-	
 
 	private static String random_input_dir = "random_input";
 	private static String out_dir = "output";
@@ -78,6 +79,9 @@ public class Flows {
 
     /**
      * a driver for this demo
+     * @param AgentAlgorith
+     * @param queens_count
+     * @param cycle_count
      */
     public static void run_gui_test(String AgentAlgorith, int queens_count, int cycle_count) {
         JFrame f = new JFrame();
@@ -117,7 +121,13 @@ public class Flows {
     }
 
 
-	public static void make_random_samples(int no_of_random_samples) {
+	/**
+	 * makes no_of_random_samples rundom samples.
+	 * Input from -  random_input_dir
+	 * 
+	 * @param no_of_random_samples
+	 */
+    public static void make_random_samples(int no_of_random_samples) {
 
 			
 		File input_dir = new File(random_input_dir);
@@ -138,8 +148,11 @@ public class Flows {
 
 
 	
-	// used for printing results in both algorithms
-	private static String measure_names[] = {
+
+	/**
+	 * used for printing results in both algorithms
+	 */
+    private static String measure_names[] = {
 			"conflicts_at_end",
 			"failures",
 			"any_time_index",
@@ -149,7 +162,19 @@ public class Flows {
 			"steps"
 		};
 	
-	public static void run_random_tests(int no_of_random_samples,  int cycle_count) {
+	/**
+	 * Runs rundom test with from the differents algs
+	 * @param no_of_random_samples
+	 * @param cycle_count
+	 * 
+	 * @see DSA_A_Agent
+	 * @see DSA_B_Agent
+	 * @see DSA_C_Agent
+	 * @see DSA_D_Agent
+	 * @see DSA_E_Agent
+	 * @see DBAAgent
+	 */
+    public static void run_random_tests(int no_of_random_samples,  int cycle_count) {
 		String agent_class_names[] = {
 			"DSA_A_Agent", "DSA_B_Agent", "DSA_C_Agent", "DSA_D_Agent", 
 			"DSA_E_Agent", "DBAAgent"  	    
@@ -305,14 +330,19 @@ public class Flows {
 		catch (Exception e) {
 			System.out.println("problem with file excel api" + reportFileName );
 			e.printStackTrace();
+			// TODO need to bo deleted (?)
 			//System.exit(1);
 		}
 
 }
 
-	//creates the problems in directory input
-	// make sure directory input exists before running
-	public static void make_samples(int samples_count) {
+	
+    /**
+     * creates the problems in directory input
+     * make sure directory input exists before running
+     * @param samples_count
+     */
+    public static void make_samples(int samples_count) {
 			
 		File input_dir = new File(input_dir_name);
 		if ((! input_dir.isDirectory()) && (! input_dir.mkdir())) {
@@ -333,7 +363,13 @@ public class Flows {
 		
 	}
 	
-public static void run_tests(int samples_count, int cycle_count, double p) {
+    /**
+     * 
+     * @param samples_count
+     * @param cycle_count
+     * @param p
+     */
+    public static void run_tests(int samples_count, int cycle_count, double p) {
 
 		int p1_index = 0;
 		int p2_index = 0;
@@ -501,8 +537,6 @@ public static void run_tests(int samples_count, int cycle_count, double p) {
  * 
  * @param no_of_random_samples
  */
-
-
 public static void make_hard_samples(int no_of_random_samples) {
 
 		
@@ -526,6 +560,18 @@ public static void make_hard_samples(int no_of_random_samples) {
 
 
 
+/**
+ * 
+ * @param no_of_random_samples
+ * @param cycle_count
+ * 
+ * @see DSA_A_Agent
+ * @see DSA_B_Agent
+ * @see DSA_C_Agent
+ * @see DSA_D_Agent
+ * @see DSA_E_Agent
+ * @see DBAAgent
+ */
 public static void run_hard_tests(int no_of_random_samples,  int cycle_count) {
 	String agent_class_names[] = {
 		"DSA_A_Agent", "DSA_B_Agent", "DSA_C_Agent", "DSA_D_Agent", 

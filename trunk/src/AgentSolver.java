@@ -1,4 +1,9 @@
 
+/**
+ * @author Miriam k.
+ * @author Elad l.
+ */
+
 
 /*****************************************************************************************
  * this file is a the base for all DBT solver classes it contains the method solve  the variables 

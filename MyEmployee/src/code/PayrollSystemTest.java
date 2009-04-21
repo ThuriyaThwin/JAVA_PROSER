@@ -1,45 +1,38 @@
 package code;
-import code.*;
-
-// Fig. 10.9: PayrollSystemTest.java
-// Employee hierarchy test program.
+import java.util.Calendar;
 
 public class PayrollSystemTest 
 {
+   static final int BONUS = 200;
+	
    public static void main( String args[] ) 
    {
       // create subclass objects
       SalariedEmployee salariedEmployee = 
-         new SalariedEmployee( "John", "Smith", "111-11-1111", 800.00,new BirthDate("11/04/09") );
+         new SalariedEmployee( "John", "Smith", "111-11-1111", 800.00,new BirthDate("11/04/2009") );
       HourlyEmployee hourlyEmployee = 
-         new HourlyEmployee( "Karen", "Price", "222-22-2222", 16.75, 40 ,new BirthDate("11/04/09"));
+         new HourlyEmployee( "Karen", "Price", "222-22-2222", 16.75, 40 ,new BirthDate("11/04/2009"));
       CommissionEmployee commissionEmployee = 
          new CommissionEmployee( 
-         "Sue", "Jones", "333-33-3333", 10000, .06 ,new BirthDate("11/07/09"));
+         "Sue", "Jones", "333-33-3333", 10000, .06 ,new BirthDate("11/07/2009"));
       BasePlusCommissionEmployee basePlusCommissionEmployee = 
          new BasePlusCommissionEmployee( 
-         "Bob", "Lewis", "444-44-4444", 5000, .04, 300 ,new BirthDate("11/06/09"));
+         "Bob", "Lewis", "444-44-4444", 5000, .04, 300 ,new BirthDate("11/06/1944"));
+      PieceWorker pieceWorker = new PieceWorker( "ran", "tal", "989898", 2.55, 2000, new BirthDate("11/04/1999"));
+    		   
+    		   
 
-      System.out.println( "Employees processed individually:\n" );
       
-      System.out.printf( "%s\n%s: $%,.2f\n\n", 
-         salariedEmployee, "earned", salariedEmployee.earnings() );
-      System.out.printf( "%s\n%s: $%,.2f\n\n",
-         hourlyEmployee, "earned", hourlyEmployee.earnings() );
-      System.out.printf( "%s\n%s: $%,.2f\n\n",
-         commissionEmployee, "earned", commissionEmployee.earnings() );
-      System.out.printf( "%s\n%s: $%,.2f\n\n", 
-         basePlusCommissionEmployee, 
-         "earned", basePlusCommissionEmployee.earnings() );
-
       // create four-element Employee array
-      Employee employees[] = new Employee[ 4 ]; 
+      Employee employees[] = new Employee[ 5 ]; 
 
       // initialize array with Employees
       employees[ 0 ] = salariedEmployee;
       employees[ 1 ] = hourlyEmployee;
       employees[ 2 ] = commissionEmployee; 
       employees[ 3 ] = basePlusCommissionEmployee;
+      employees[ 4 ] = pieceWorker;
+      
 
       System.out.println( "Employees processed polymorphically:\n" );
       
@@ -66,13 +59,20 @@ public class PayrollSystemTest
          
          
          System.out.printf( 
-            "earned $%,.2f\n\n", currentEmployee.earnings() );
-         if (currentEmployee.getBirthDate().getDate().get)
+            "earned $%,.2f\n", currentEmployee.earnings() );
+         
+         /* get the birth date month */
+         Calendar cal=Calendar.getInstance(); // date.getX is deprecated.
+         cal.setTime(currentEmployee.getBirthDate().getDate());
+         
+         /* check for a birthday in this month.*/
+         if (cal.get(Calendar.MONTH) == Calendar.getInstance().get(Calendar.MONTH))
+         {
+        	 //need to note the bonus adding.
+        	 System.out.printf( 
+        	            "**** Happy BirthDay %s! ***** new earning is $%,.2f\n",currentEmployee.getFirstName(), currentEmployee.earnings()+ BONUS );
+         }
+         System.out.println("-------------------------------------------------------\n");
       } // end for
-
-      // get type name of each object in employees array
-      for ( int j = 0; j < employees.length; j++ )
-         System.out.printf( "Employee %d is a %s\n", j, 
-            employees[ j ].getClass().getName() ); 
    } // end main
 } // end class PayrollSystemTest

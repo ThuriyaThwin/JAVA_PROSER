@@ -4,7 +4,7 @@
 package code;
 import java.util.*;
 
-import javax.swing.JOptionPane;
+
 
 /**
  * MySet class that repr a set with the needed opers.
@@ -18,7 +18,35 @@ public class MySet {
 	 *         for more flexibility. 
 	 *         also because the different name needed in the API.   
 	 */
+	
+	static final int RANGE_FROM = 0;
+	static final int RANGE_TO = 100;
+	
 	private HashSet<Integer> set; 
+	
+	
+	/**
+	 * 
+	 * @param i
+	 * @return true iff i in the range.(RANGE_FROM - RANGE_TO)
+	 */
+	private boolean inRange(int i)
+	{
+		return (i>= RANGE_FROM && i<= RANGE_TO);
+	}
+	
+	/**
+	 * a util for generate a random number in rage [start - end]
+	 * @param start
+	 * @param end
+	 * @param generator
+	 * @return a rand num in the range [starat - end]
+	 */
+	public static int get_rand_num(int start, int end, Random generator)
+	{	
+		return generator.nextInt(end-start)+start;
+	}
+	
 	
 	public MySet ()
 	{
@@ -26,7 +54,8 @@ public class MySet {
 	}
 	
 	/**
-	 * Sets the given array vars as the set's vars. 
+	 * Sets the given array vars as the set's vars.
+	 * adding only numbers in the range (RANGE_FROM - RANGE_TO)
 	 * @param input_set
 	 */
 	public MySet(int [] input_set)
@@ -35,9 +64,11 @@ public class MySet {
 		
 		for (int i : input_set)
 		{
-			set.add(i);
+			/* adding only numbers in the range */
+			if(inRange(i))set.add(i);
 		}
 	}
+	
 	
 	/**
 	 * Sets the set to be the union of the current set and the given set
@@ -83,7 +114,7 @@ public class MySet {
 	 */
 	public void insert(int x)
 	{
-		set.add(x);
+		if (inRange(x)) set.add(x);
 	}
 	
 
@@ -138,20 +169,7 @@ public class MySet {
 		return true;
 	}
 
-	
-	/**
-	 * a util for generate a random number in rage [start - end]
-	 * @param start
-	 * @param end
-	 * @param generator
-	 * @return a rand num in the range [starat - end]
-	 */
-	public static int get_rand_num(int start, int end, Random generator)
-	{	
-		return generator.nextInt(end-start)+start;
-	}
-	
-	
+		
 	public static void main(String[] args)
 	{
 	    int even[] = {2,4,6,8,10,12,14,16,18,20};

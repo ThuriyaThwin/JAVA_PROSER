@@ -39,6 +39,11 @@ public class BirthDate
         }
 	}
 	
+	public Date getDate()
+	{
+		return date;
+	}
+	
 	public String toString()
 	{
 		return  date.toString();

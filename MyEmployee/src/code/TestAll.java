@@ -1,12 +1,11 @@
+/*
 package code;
 import code.*;
 
 public class TestAll {
 
 	
-	/**
-	 * @param args
-	 */
+	
 	public static void main(String[] args) {
 		Employee[] emps = 
 		{
@@ -20,3 +19,4 @@ public class TestAll {
 	}
 
 }
+*/

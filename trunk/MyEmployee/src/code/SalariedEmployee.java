@@ -1,5 +1,8 @@
-// Fig. 10.14: SalariedEmployee.java
-// SalariedEmployee class extends Employee, which implements Payable.
+package code;
+import code.BirthDate;
+
+// Fig. 10.5: SalariedEmployee.java
+// SalariedEmployee class extends Employee.
 
 public class SalariedEmployee extends Employee 
 {
@@ -7,9 +10,9 @@ public class SalariedEmployee extends Employee
 
    // four-argument constructor
    public SalariedEmployee( String first, String last, String ssn, 
-      double salary )
+      double salary ,BirthDate bd)
    {
-      super( first, last, ssn ); // pass to Employee constructor
+      super( first, last, ssn, bd ); // pass to Employee constructor
       setWeeklySalary( salary ); // validate and store salary
    } // end four-argument SalariedEmployee constructor
 
@@ -25,12 +28,11 @@ public class SalariedEmployee extends Employee
       return weeklySalary;
    } // end method getWeeklySalary
 
-   // calculate earnings; implement interface Payable method that was
-   // abstract in superclass Employee
-   public double getPaymentAmount()
+   // calculate earnings; override abstract method earnings in Employee
+   public double earnings()
    {
       return getWeeklySalary();
-   } // end method getPaymentAmount
+   } // end method earnings
 
    // return String representation of SalariedEmployee object
    public String toString()
